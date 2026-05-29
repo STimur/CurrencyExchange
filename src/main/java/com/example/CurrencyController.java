@@ -9,7 +9,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
 
-@WebServlet("/currencies")
+@WebServlet({"/currencies", "/currency/*"})
 public class CurrencyController extends HttpServlet {
 
     private final CurrencyRepository repo = new CurrencyRepository();
@@ -20,8 +20,113 @@ public class CurrencyController extends HttpServlet {
                          HttpServletResponse resp)
             throws IOException {
 
-        resp.setContentType("application/json");
+        String path = req.getPathInfo();
+        if (path == null || path.equals("/")) {
+            getAllCurrencies(resp);
+        } else {
+            String code = path.substring(1);
+            getCurrencyByCode(code, resp);
+        }
+    }
 
+    @Override
+    protected void doPost(HttpServletRequest req,
+                          HttpServletResponse resp)
+            throws IOException {
+
+        String code = req.getParameter("code");
+        String fullName = req.getParameter("fullName");
+        String sign = req.getParameter("sign");
+
+        if (code == null || code.isBlank()
+                || fullName == null || fullName.isBlank()
+                || sign == null || sign.isBlank()) {
+
+            resp.setStatus(
+                    HttpServletResponse.SC_BAD_REQUEST);
+
+            resp.setContentType("application/json");
+
+            resp.getWriter().write("""
+                    {
+                      "message":"Missing required fields"
+                    }
+                    """);
+
+            return;
+        }
+
+        try {
+
+            Currency currency =
+                    repo.save(
+                            code,
+                            fullName,
+                            sign);
+
+            resp.setStatus(
+                    HttpServletResponse.SC_CREATED);
+
+            resp.setContentType("application/json");
+            resp.setCharacterEncoding("UTF-8");
+
+            mapper.writeValue(
+                    resp.getWriter(),
+                    currency
+            );
+
+        } catch (Exception e) {
+
+            resp.setStatus(
+                    HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+
+            resp.setContentType("application/json");
+
+            resp.getWriter().write("""
+                    {
+                      "message":"Database error"
+                    }
+                    """);
+        }
+    }
+
+    private void getCurrencyByCode(String code, HttpServletResponse resp) throws IOException {
+        resp.setContentType("application/json");
+        try {
+            Currency currency = repo.findByCode(code);
+
+            if (currency == null) {
+
+                resp.setStatus(
+                        HttpServletResponse.SC_NOT_FOUND);
+
+                resp.getWriter().write("""
+                    { "error": "Currency not found" }
+                    """);
+
+                return;
+            }
+
+            resp.setStatus(HttpServletResponse.SC_OK);
+            mapper.writeValue(resp.getWriter(), currency);
+
+        } catch (Exception e) {
+
+            resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+
+            String errorJson = """
+            {
+              "error": "DB_ERROR",
+              "message": "%s"
+            }
+            """.formatted(e.getMessage());
+
+            resp.getWriter().write(errorJson);
+        }
+    }
+
+    private void getAllCurrencies(HttpServletResponse resp) throws IOException {
+        resp.setContentType("application/json");
         try {
             List<Currency> currencies = repo.findAll();
 
@@ -33,11 +138,11 @@ public class CurrencyController extends HttpServlet {
             resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 
             String errorJson = """
-                {
-                  "error": "DB_ERROR",
-                  "message": "%s"
-                }
-                """.formatted(e.getMessage());
+            {
+              "error": "DB_ERROR",
+              "message": "%s"
+            }
+            """.formatted(e.getMessage());
 
             resp.getWriter().write(errorJson);
         }
