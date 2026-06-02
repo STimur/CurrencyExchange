@@ -7,8 +7,9 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
-public class CurrencyRepository {
+public class CurrencyDao {
 
     public List<Currency> findAll() {
 
@@ -30,13 +31,13 @@ public class CurrencyRepository {
             }
 
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new CurrencyDaoException("Some DB Error", e);
         }
 
         return result;
     }
 
-    public Currency findByCode(String code) {
+    public Optional<Currency> findByCode(String code) {
 
         String sql = "SELECT * FROM Сurrencies WHERE code = ?";
 
@@ -50,25 +51,24 @@ public class CurrencyRepository {
 
                 if (rs.next()) {
 
-                    return new Currency(
+                    return Optional.of(new Currency(
                             rs.getInt("id"),
                             rs.getString("code"),
                             rs.getString("full_name"),
                             rs.getString("sign")
-                    );
+                    ));
                 }
 
-                return null;
+                return Optional.empty();
             }
-
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new CurrencyDaoException("Some DB Error", e);
         }
     }
 
-    public Currency save(String code,
-                         String fullName,
-                         String sign) {
+    public Currency insert(String code,
+                           String fullName,
+                           String sign) {
 
         String sql = """
                 INSERT INTO Сurrencies(code, full_name, sign)
@@ -90,8 +90,7 @@ public class CurrencyRepository {
             try (ResultSet keys = stmt.getGeneratedKeys()) {
 
                 if (!keys.next()) {
-                    throw new SQLException(
-                            "Failed to obtain generated id");
+                    throw new SQLException("Failed to obtain generated id");
                 }
 
                 int id = keys.getInt(1);
@@ -105,7 +104,16 @@ public class CurrencyRepository {
             }
 
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            if (isUniqueConstraintViolation(e)) {
+                throw new DuplicateCurrencyDaoException(e);
+            }
+
+            throw new CurrencyDaoException(e);
         }
+    }
+
+    private boolean isUniqueConstraintViolation(SQLException e) {
+        return e.getErrorCode() == 19
+                && e.getMessage().contains("UNIQUE");
     }
 }

@@ -12,7 +12,8 @@ import java.util.List;
 @WebServlet({"/currencies", "/currency/*"})
 public class CurrencyController extends HttpServlet {
 
-    private final CurrencyRepository repo = new CurrencyRepository();
+    private final CurrencyService currencyService = new CurrencyService(new CurrencyDao());
+    private final CurrencyDao repo = new CurrencyDao();
     private final ObjectMapper mapper = new ObjectMapper();
 
     @Override
@@ -59,7 +60,7 @@ public class CurrencyController extends HttpServlet {
         try {
 
             Currency currency =
-                    repo.save(
+                    repo.insert(
                             code,
                             fullName,
                             sign);
@@ -93,7 +94,7 @@ public class CurrencyController extends HttpServlet {
     private void getCurrencyByCode(String code, HttpServletResponse resp) throws IOException {
         resp.setContentType("application/json");
         try {
-            Currency currency = repo.findByCode(code);
+            Currency currency = currencyService.findByCode(code);
 
             if (currency == null) {
 
