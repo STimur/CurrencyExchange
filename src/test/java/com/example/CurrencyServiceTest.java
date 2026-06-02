@@ -133,7 +133,7 @@ public class CurrencyServiceTest {
         try (Connection conn = Database.getConnection();
              PreparedStatement stmt =
                      conn.prepareStatement(
-                             "DELETE FROM Сurrencies WHERE code = ?")) {
+                             "DELETE FROM Currencies WHERE code = ?")) {
 
             stmt.setString(1, code);
             stmt.executeUpdate();

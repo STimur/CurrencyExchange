@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS Сurrencies
+CREATE TABLE IF NOT EXISTS Currencies
 (
     id        INTEGER PRIMARY KEY AUTOINCREMENT,
     code      VARCHAR(10)  NOT NULL UNIQUE,
@@ -7,4 +7,4 @@ CREATE TABLE IF NOT EXISTS Сurrencies
 );
 
 CREATE UNIQUE INDEX IF NOT EXISTS idx_currencies_code
-    ON Сurrencies (code);
+    ON Currencies (code);

@@ -13,7 +13,7 @@ public class CurrencyDao {
 
     public List<Currency> findAll() {
 
-        String sql = "SELECT * FROM Сurrencies";
+        String sql = "SELECT * FROM Currencies";
 
         List<Currency> result = new ArrayList<>();
 
@@ -39,7 +39,7 @@ public class CurrencyDao {
 
     public Optional<Currency> findByCode(String code) {
 
-        String sql = "SELECT * FROM Сurrencies WHERE code = ?";
+        String sql = "SELECT * FROM Currencies WHERE code = ?";
 
         try (Connection conn = Database.getConnection();
              PreparedStatement stmt =
@@ -71,7 +71,7 @@ public class CurrencyDao {
                            String sign) {
 
         String sql = """
-                INSERT INTO Сurrencies(code, full_name, sign)
+                INSERT INTO Currencies(code, full_name, sign)
                 VALUES (?, ?, ?)
                 """;
 
