@@ -12,7 +12,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.List;
 
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -40,36 +39,7 @@ public class CurrencyControllerTest {
     }
 
     @Test
-    void getCurrenciesReturn500WhenErrorOnServer() throws IOException {
-        when(requestMock.getServletPath()).thenReturn("/currencies");
-        CurrencyDaoException e = new CurrencyDaoException();
-        when(currencyServiceMock.findAll()).thenThrow(e);
-
-        currencyController.doGet(requestMock, responseMock);
-
-        verify(currencyServiceMock).findAll();
-        verify(responseMock).setContentType("application/json");
-        verify(responseMock).setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-        verify(mapperMock).writeValue(writerMock, new ErrorResponse(e.getMessage()));
-    }
-
-    @Test
-    void shouldReturnAllCurrencies() throws IOException {
-        when(requestMock.getServletPath()).thenReturn("/currencies");
-        List<Currency> currencies = List.of();
-        when(currencyServiceMock.findAll()).thenReturn(currencies);
-
-        currencyController.doGet(requestMock, responseMock);
-
-        verify(currencyServiceMock).findAll();
-        verify(responseMock).setContentType("application/json");
-        verify(responseMock).setStatus(HttpServletResponse.SC_OK);
-        verify(mapperMock).writeValue(writerMock, currencies);
-    }
-
-    @Test
     void shouldReturn400WhenCurrencyCodeIsNull() throws IOException {
-        when(requestMock.getServletPath()).thenReturn("/currency");
         when(requestMock.getPathInfo()).thenReturn(null);
 
         currencyController.doGet(requestMock, responseMock);
@@ -81,7 +51,6 @@ public class CurrencyControllerTest {
 
     @Test
     void shouldReturn400WhenCurrencyCodeIsEmpty() throws IOException {
-        when(requestMock.getServletPath()).thenReturn("/currency/");
         when(requestMock.getPathInfo()).thenReturn("/");
 
         currencyController.doGet(requestMock, responseMock);
@@ -93,9 +62,9 @@ public class CurrencyControllerTest {
 
     @Test
     void shouldReturn404WhenCurrencyNotFound() throws IOException {
-        when(requestMock.getServletPath()).thenReturn("/currency/X");
         when(requestMock.getPathInfo()).thenReturn("/X");
-        when(currencyServiceMock.findByCode("X")).thenThrow(new CurrencyNotFoundException("X"));
+        CurrencyNotFoundException e = new CurrencyNotFoundException("X");
+        when(currencyServiceMock.findByCode("X")).thenThrow(e);
 
         currencyController.doGet(requestMock, responseMock);
 
@@ -107,21 +76,20 @@ public class CurrencyControllerTest {
 
     @Test
     void getCurrencyShouldReturn500WhenErrorOnServer() throws IOException {
-        when(requestMock.getServletPath()).thenReturn("/currency/USD");
         when(requestMock.getPathInfo()).thenReturn("/USD");
-        when(currencyServiceMock.findByCode("USD")).thenThrow(new CurrencyDaoException("База данных не доступна"));
+        CurrencyDaoException e = new CurrencyDaoException("База данных не доступна");
+        when(currencyServiceMock.findByCode("USD")).thenThrow(e);
 
         currencyController.doGet(requestMock, responseMock);
 
         verify(currencyServiceMock).findByCode("USD");
         verify(responseMock).setContentType("application/json");
         verify(responseMock).setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-        verify(mapperMock).writeValue(writerMock, new ErrorResponse("База данных не доступна"));
+        verify(mapperMock).writeValue(writerMock, new ErrorResponse(e.getMessage()));
     }
 
     @Test
     void shouldReturnCurrency() throws IOException {
-        when(requestMock.getServletPath()).thenReturn("/currency/USD");
         when(requestMock.getPathInfo()).thenReturn("/USD");
         Currency currency = new Currency(1, "", "", "");
         when(currencyServiceMock.findByCode("USD")).thenReturn(currency);

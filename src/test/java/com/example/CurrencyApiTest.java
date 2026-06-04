@@ -92,7 +92,7 @@ public class CurrencyApiTest {
                     HttpRequest.newBuilder()
                             .uri(new URI(
                                     "http://localhost:8080/" +
-                                            "CurrencyExchange_war/currencies"))
+                                            "CurrencyExchange_war/currency"))
                             .header(
                                     "Content-Type",
                                     "application/x-www-form-urlencoded")
