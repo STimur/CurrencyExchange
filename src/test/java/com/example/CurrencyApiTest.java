@@ -86,13 +86,13 @@ public class CurrencyApiTest {
     void shouldCreateCurrency() throws Exception {
 
         try {
-            String body = "fullName=TEST&code=TEST&sign=TEST";
+            String body = "name=TEST&code=TEST&sign=TEST";
 
             HttpRequest request =
                     HttpRequest.newBuilder()
                             .uri(new URI(
                                     "http://localhost:8080/" +
-                                            "CurrencyExchange_war/currency"))
+                                            "CurrencyExchange_war/currencies"))
                             .header(
                                     "Content-Type",
                                     "application/x-www-form-urlencoded")

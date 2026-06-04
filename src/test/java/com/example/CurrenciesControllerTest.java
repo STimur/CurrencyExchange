@@ -40,7 +40,7 @@ public class CurrenciesControllerTest {
     }
 
     @Test
-    void getCurrenciesReturn500WhenErrorOnServer() throws IOException {
+    void getShouldReturn500WhenErrorOnServer() throws IOException {
         CurrencyDaoException e = new CurrencyDaoException();
         when(currencyServiceMock.findAll()).thenThrow(e);
 
@@ -53,7 +53,7 @@ public class CurrenciesControllerTest {
     }
 
     @Test
-    void shouldReturnAllCurrencies() throws IOException {
+    void getShouldReturnAllCurrencies() throws IOException {
         List<Currency> currencies = List.of();
         when(currencyServiceMock.findAll()).thenReturn(currencies);
 
@@ -63,5 +63,72 @@ public class CurrenciesControllerTest {
         verify(responseMock).setContentType("application/json");
         verify(responseMock).setStatus(HttpServletResponse.SC_OK);
         verify(mapperMock).writeValue(writerMock, currencies);
+    }
+
+    @Test
+    void postShouldReturn400WhenInvalidInput() throws IOException {
+        when(requestMock.getParameter("code")).thenReturn(null);
+
+        currenciesController.doPost(requestMock, responseMock);
+
+        verify(responseMock).setContentType("application/json");
+        verify(responseMock).setStatus(HttpServletResponse.SC_BAD_REQUEST);
+        verify(mapperMock).writeValue(writerMock, new ErrorResponse("Отсутствует нужное поле формы"));
+    }
+
+    @Test
+    void postShouldReturn409WhenCurrencyAlreadyExists() throws IOException {
+        String name = "dollar";
+        String code = "USD";
+        String sign = "$";
+        when(requestMock.getParameter("name")).thenReturn(name);
+        when(requestMock.getParameter("code")).thenReturn(code);
+        when(requestMock.getParameter("sign")).thenReturn(sign);
+        when(currencyServiceMock.create(code, name, sign)).thenThrow(new CurrencyAlreadyExistsException(code));
+
+        currenciesController.doPost(requestMock, responseMock);
+
+        verify(currencyServiceMock).create(code, name, sign);
+        verify(responseMock).setContentType("application/json");
+        verify(responseMock).setStatus(HttpServletResponse.SC_CONFLICT);
+        verify(mapperMock).writeValue(writerMock, new ErrorResponse("Валюта с таким кодом уже существует"));
+    }
+
+    @Test
+    void postShouldReturn500WhenDatabaseIsUnavailable() throws IOException {
+        String name = "dollar";
+        String code = "USD";
+        String sign = "$";
+        CurrencyDaoException e = new CurrencyDaoException();
+        when(requestMock.getParameter("name")).thenReturn(name);
+        when(requestMock.getParameter("code")).thenReturn(code);
+        when(requestMock.getParameter("sign")).thenReturn(sign);
+        when(currencyServiceMock.create(code, name, sign)).thenThrow(e);
+
+        currenciesController.doPost(requestMock, responseMock);
+
+        verify(currencyServiceMock).create(code, name, sign);
+        verify(responseMock).setContentType("application/json");
+        verify(responseMock).setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+        verify(mapperMock).writeValue(writerMock, new ErrorResponse(e.getMessage()));
+    }
+
+    @Test
+    void postShouldCreateNewCurrency() throws IOException {
+        String name = "dollar";
+        String code = "USD";
+        String sign = "$";
+        Currency currency = new Currency(0, code, name, sign);
+        when(requestMock.getParameter("name")).thenReturn(name);
+        when(requestMock.getParameter("code")).thenReturn(code);
+        when(requestMock.getParameter("sign")).thenReturn(sign);
+        when(currencyServiceMock.create(code, name, sign)).thenReturn(currency);
+
+        currenciesController.doPost(requestMock, responseMock);
+
+        verify(currencyServiceMock).create(code, name, sign);
+        verify(responseMock).setContentType("application/json");
+        verify(responseMock).setStatus(HttpServletResponse.SC_CREATED);
+        verify(mapperMock).writeValue(writerMock, currency);
     }
 }

@@ -27,6 +27,7 @@ public class CurrencyController extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         String path = req.getPathInfo();
+
         if (path == null || path.equals("/")) {
             resp.setContentType("application/json");
             resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);

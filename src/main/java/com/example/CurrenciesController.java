@@ -25,9 +25,7 @@ public class CurrenciesController extends HttpServlet {
     }
 
     @Override
-    protected void doGet(HttpServletRequest req,
-                         HttpServletResponse resp)
-            throws IOException {
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         try {
             List<Currency> currencies = currencyService.findAll();
 
@@ -43,63 +41,34 @@ public class CurrenciesController extends HttpServlet {
     }
 
     @Override
-    protected void doPost(HttpServletRequest req,
-                          HttpServletResponse resp)
-            throws IOException {
-
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         String code = req.getParameter("code");
-        String fullName = req.getParameter("fullName");
+        String name = req.getParameter("name");
         String sign = req.getParameter("sign");
 
-        if (code == null || code.isBlank()
-                || fullName == null || fullName.isBlank()
-                || sign == null || sign.isBlank()) {
-
-            resp.setStatus(
-                    HttpServletResponse.SC_BAD_REQUEST);
-
+        if (code == null || code.isBlank() || name == null || name.isBlank() || sign == null || sign.isBlank()) {
             resp.setContentType("application/json");
-
-            resp.getWriter().write("""
-                    {
-                      "message":"Missing required fields"
-                    }
-                    """);
-
+            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            mapper.writeValue(resp.getWriter(), new ErrorResponse("Отсутствует нужное поле формы"));
             return;
         }
 
         try {
+            Currency currency = currencyService.create(code, name, sign);
 
-            Currency currency =
-                    currencyService.create(
-                            code,
-                            fullName,
-                            sign);
-
-            resp.setStatus(
-                    HttpServletResponse.SC_CREATED);
-
+            resp.setStatus(HttpServletResponse.SC_CREATED);
             resp.setContentType("application/json");
-            resp.setCharacterEncoding("UTF-8");
-
-            mapper.writeValue(
-                    resp.getWriter(),
-                    currency
-            );
-
-        } catch (Exception e) {
-
-            resp.setStatus(
-                    HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-
+            mapper.writeValue(resp.getWriter(), currency);
+        }
+        catch (CurrencyAlreadyExistsException e) {
+            resp.setStatus(HttpServletResponse.SC_CONFLICT);
             resp.setContentType("application/json");
-
-            resp.getWriter().write("""
-                    {
-                      "message":"Database error"
-                    }
-                    """);
+            mapper.writeValue(resp.getWriter(), new ErrorResponse("Валюта с таким кодом уже существует"));
+        }
+        catch (CurrencyDaoException e) {
+            resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            resp.setContentType("application/json");
+            mapper.writeValue(resp.getWriter(), new ErrorResponse(e.getMessage()));
         }
     }
 }
