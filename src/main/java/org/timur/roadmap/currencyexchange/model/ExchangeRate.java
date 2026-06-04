@@ -1,4 +1,10 @@
 package org.timur.roadmap.currencyexchange.model;
 
-public record ExchangeRate() {
-}
+import java.math.BigDecimal;
+
+public record ExchangeRate(
+        int id,
+        Currency baseCurrency,
+        Currency targetCurrency,
+        BigDecimal rate
+) {}

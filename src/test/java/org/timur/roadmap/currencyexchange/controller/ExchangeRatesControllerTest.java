@@ -16,6 +16,7 @@ import org.timur.roadmap.currencyexchange.service.ExchangeRateService;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.sql.SQLException;
 import java.util.List;
 
 import static org.mockito.Mockito.verify;
@@ -45,7 +46,7 @@ public class ExchangeRatesControllerTest {
 
     @Test
     void getShouldReturn500WhenErrorOnServer() throws IOException {
-        ExchangeRateDaoException e = new ExchangeRateDaoException();
+        ExchangeRateDaoException e = new ExchangeRateDaoException("База данных недоступна", new SQLException());
         when(exchangeRateServiceMock.findAll()).thenThrow(e);
 
         exchangeRatesController.doGet(requestMock, responseMock);
