@@ -1,4 +1,4 @@
-package com.example;
+package org.timur.roadmap.currencyexchange.controller;
 
 import java.io.IOException;
 import java.io.PrintWriter;

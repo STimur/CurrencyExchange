@@ -1,4 +1,10 @@
-package com.example;
+package org.timur.roadmap.currencyexchange.service;
+
+import org.timur.roadmap.currencyexchange.model.Currency;
+import org.timur.roadmap.currencyexchange.exception.CurrencyAlreadyExistsException;
+import org.timur.roadmap.currencyexchange.exception.CurrencyNotFoundException;
+import org.timur.roadmap.currencyexchange.exception.DuplicateCurrencyDaoException;
+import org.timur.roadmap.currencyexchange.dao.CurrencyDao;
 
 import java.util.List;
 

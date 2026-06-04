@@ -1,4 +1,4 @@
-package com.example;
+package org.timur.roadmap.currencyexchange.utility;
 
 import jakarta.servlet.ServletContextEvent;
 import jakarta.servlet.ServletContextListener;

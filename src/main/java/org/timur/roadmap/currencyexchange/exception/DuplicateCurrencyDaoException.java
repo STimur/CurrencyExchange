@@ -1,4 +1,4 @@
-package com.example;
+package org.timur.roadmap.currencyexchange.exception;
 
 public class DuplicateCurrencyDaoException extends CurrencyDaoException {
 

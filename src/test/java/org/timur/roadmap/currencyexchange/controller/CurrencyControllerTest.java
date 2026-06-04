@@ -1,4 +1,4 @@
-package com.example;
+package org.timur.roadmap.currencyexchange.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
@@ -9,6 +9,11 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.timur.roadmap.currencyexchange.dto.ErrorResponse;
+import org.timur.roadmap.currencyexchange.exception.CurrencyDaoException;
+import org.timur.roadmap.currencyexchange.exception.CurrencyNotFoundException;
+import org.timur.roadmap.currencyexchange.model.Currency;
+import org.timur.roadmap.currencyexchange.service.CurrencyService;
 
 import java.io.IOException;
 import java.io.PrintWriter;

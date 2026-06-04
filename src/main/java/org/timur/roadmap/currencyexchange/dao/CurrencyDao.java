@@ -1,4 +1,9 @@
-package com.example;
+package org.timur.roadmap.currencyexchange.dao;
+
+import org.timur.roadmap.currencyexchange.model.Currency;
+import org.timur.roadmap.currencyexchange.exception.CurrencyDaoException;
+import org.timur.roadmap.currencyexchange.utility.Database;
+import org.timur.roadmap.currencyexchange.exception.DuplicateCurrencyDaoException;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;

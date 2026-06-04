@@ -1,9 +1,11 @@
-package com.example;
+package org.timur.roadmap.currencyexchange;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.timur.roadmap.currencyexchange.model.Currency;
+import org.timur.roadmap.currencyexchange.utility.Database;
 
 import java.net.URI;
 import java.net.http.HttpClient;

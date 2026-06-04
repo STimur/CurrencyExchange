@@ -1,4 +1,4 @@
-package com.example;
+package org.timur.roadmap.currencyexchange.utility;
 
 import java.io.BufferedReader;
 import java.io.InputStream;

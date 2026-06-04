@@ -1,4 +1,4 @@
-package com.example;
+package org.timur.roadmap.currencyexchange.dto;
 
 public record ErrorResponse(String message) {
 }

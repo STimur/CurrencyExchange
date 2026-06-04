@@ -1,8 +1,14 @@
-package com.example;
+package org.timur.roadmap.currencyexchange.service;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.timur.roadmap.currencyexchange.dao.CurrencyDao;
+import org.timur.roadmap.currencyexchange.exception.CurrencyAlreadyExistsException;
+import org.timur.roadmap.currencyexchange.exception.CurrencyDaoException;
+import org.timur.roadmap.currencyexchange.exception.CurrencyNotFoundException;
+import org.timur.roadmap.currencyexchange.model.Currency;
+import org.timur.roadmap.currencyexchange.utility.Database;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
