@@ -16,4 +16,8 @@ public class ExchangeRateService {
     public List<ExchangeRate> findAll() {
         return exchangeRateDao.findAll();
     }
+
+    public ExchangeRate findByCodePair(String baseCurrencyCode, String targetCurrencyCode) {
+        return null;
+    }
 }
