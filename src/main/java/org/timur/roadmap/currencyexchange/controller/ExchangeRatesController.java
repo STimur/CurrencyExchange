@@ -8,6 +8,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.timur.roadmap.currencyexchange.dao.CurrencyDao;
 import org.timur.roadmap.currencyexchange.dao.ExchangeRateDao;
 import org.timur.roadmap.currencyexchange.dto.ErrorResponse;
+import org.timur.roadmap.currencyexchange.exception.CurrencyDaoException;
 import org.timur.roadmap.currencyexchange.exception.ExchangeRateAlreadyExistsException;
 import org.timur.roadmap.currencyexchange.exception.ExchangeRateCurrencyNotExistsException;
 import org.timur.roadmap.currencyexchange.exception.ExchangeRateDaoException;
@@ -83,7 +84,7 @@ public class ExchangeRatesController extends HttpServlet {
             mapper.writeValue(resp.getWriter(),
                     new ErrorResponse("Одна (или обе) валюта из валютной пары не существует в БД"));
         }
-        catch (ExchangeRateDaoException e) {
+        catch (ExchangeRateDaoException | CurrencyDaoException e) {
             resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             resp.setContentType("application/json");
             mapper.writeValue(resp.getWriter(), new ErrorResponse(e.getMessage()));

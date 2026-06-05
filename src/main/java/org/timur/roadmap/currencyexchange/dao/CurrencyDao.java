@@ -36,7 +36,7 @@ public class CurrencyDao {
             }
 
         } catch (SQLException e) {
-            throw new CurrencyDaoException("Some DB Error", e);
+            throw new CurrencyDaoException("База данных недоступна", e);
         }
 
         return result;
@@ -67,7 +67,7 @@ public class CurrencyDao {
                 return Optional.empty();
             }
         } catch (SQLException e) {
-            throw new CurrencyDaoException("Some DB Error", e);
+            throw new CurrencyDaoException("База данных недоступна", e);
         }
     }
 
@@ -113,7 +113,7 @@ public class CurrencyDao {
                 throw new DuplicateCurrencyDaoException(e);
             }
 
-            throw new CurrencyDaoException(e);
+            throw new CurrencyDaoException("База данных недоступна", e);
         }
     }
 
