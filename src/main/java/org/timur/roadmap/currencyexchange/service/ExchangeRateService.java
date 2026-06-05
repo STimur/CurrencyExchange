@@ -4,6 +4,7 @@ import org.timur.roadmap.currencyexchange.dao.ExchangeRateDao;
 import org.timur.roadmap.currencyexchange.exception.ExchangeRateNotFoundException;
 import org.timur.roadmap.currencyexchange.model.ExchangeRate;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 public class ExchangeRateService {
@@ -21,5 +22,9 @@ public class ExchangeRateService {
     public ExchangeRate findByCodePair(String baseCurrencyCode, String targetCurrencyCode) {
         return exchangeRateDao.findByCodePair(baseCurrencyCode, targetCurrencyCode)
                 .orElseThrow(() -> new ExchangeRateNotFoundException(baseCurrencyCode, targetCurrencyCode));
+    }
+
+    public ExchangeRate create(String targetCurrencyCode, String baseCurrencyCode, BigDecimal rate) {
+        return null;
     }
 }
