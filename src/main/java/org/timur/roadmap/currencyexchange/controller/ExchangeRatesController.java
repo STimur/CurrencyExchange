@@ -5,6 +5,7 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.timur.roadmap.currencyexchange.dao.CurrencyDao;
 import org.timur.roadmap.currencyexchange.dao.ExchangeRateDao;
 import org.timur.roadmap.currencyexchange.dto.ErrorResponse;
 import org.timur.roadmap.currencyexchange.exception.ExchangeRateAlreadyExistsException;
@@ -23,7 +24,7 @@ public class ExchangeRatesController extends HttpServlet {
     private final ObjectMapper mapper;
 
     public ExchangeRatesController() {
-        this.exchangeRateService = new ExchangeRateService(new ExchangeRateDao());
+        this.exchangeRateService = new ExchangeRateService(new ExchangeRateDao(), new CurrencyDao());
         this.mapper = new ObjectMapper();
     }
 

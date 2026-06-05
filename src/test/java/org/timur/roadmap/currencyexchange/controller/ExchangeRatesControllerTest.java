@@ -112,7 +112,9 @@ public class ExchangeRatesControllerTest {
         when(requestMock.getParameter("targetCurrencyCode")).thenReturn(targetCurrency);
         when(requestMock.getParameter("rate")).thenReturn(rate);
         when(exchangeRateServiceMock.create(baseCurrency, targetCurrency, new BigDecimal(rate)))
-                .thenThrow(new ExchangeRateCurrencyNotExistsException());
+                .thenThrow(new ExchangeRateCurrencyNotExistsException(
+                        "Одна (или обе) валюта из валютной пары не существует в БД"
+                ));
 
         exchangeRatesController.doPost(requestMock, responseMock);
 

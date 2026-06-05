@@ -3,7 +3,10 @@ package org.timur.roadmap.currencyexchange.service;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.timur.roadmap.currencyexchange.dao.CurrencyDao;
 import org.timur.roadmap.currencyexchange.dao.ExchangeRateDao;
+import org.timur.roadmap.currencyexchange.exception.ExchangeRateAlreadyExistsException;
+import org.timur.roadmap.currencyexchange.exception.ExchangeRateCurrencyNotExistsException;
 import org.timur.roadmap.currencyexchange.exception.ExchangeRateDaoException;
 import org.timur.roadmap.currencyexchange.exception.ExchangeRateNotFoundException;
 import org.timur.roadmap.currencyexchange.model.Currency;
@@ -11,11 +14,15 @@ import org.timur.roadmap.currencyexchange.model.ExchangeRate;
 import org.timur.roadmap.currencyexchange.utility.Database;
 
 import java.math.BigDecimal;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -32,7 +39,8 @@ public class ExchangeRateServiceTest {
     @BeforeEach
     void setup() {
         ExchangeRateDao exchangeRateDao = new ExchangeRateDao();
-        exchangeRateService = new ExchangeRateService(exchangeRateDao);
+        CurrencyDao currencyDao = new CurrencyDao();
+        exchangeRateService = new ExchangeRateService(exchangeRateDao, currencyDao);
     }
 
     @Test
@@ -40,7 +48,7 @@ public class ExchangeRateServiceTest {
         ExchangeRateDao exchangeRateDaoMock = mock(ExchangeRateDao.class);
         when(exchangeRateDaoMock.findAll()).thenThrow(new ExchangeRateDaoException("База данных недоступна", new SQLException()));
 
-        ExchangeRateService exchangeRateServiceWithMock = new ExchangeRateService(exchangeRateDaoMock);
+        ExchangeRateService exchangeRateServiceWithMock = new ExchangeRateService(exchangeRateDaoMock, null);
 
         ExchangeRateDaoException exception = assertThrows(
                 ExchangeRateDaoException.class,
@@ -78,7 +86,7 @@ public class ExchangeRateServiceTest {
         when(exchangeRateDaoMock.findByCodePair(any(), any()))
                 .thenThrow(new ExchangeRateDaoException("База данных не доступна", new SQLException()));
 
-        ExchangeRateService exchangeRateServiceWithMock = new ExchangeRateService(exchangeRateDaoMock);
+        ExchangeRateService exchangeRateServiceWithMock = new ExchangeRateService(exchangeRateDaoMock, null);
 
         ExchangeRateDaoException exception = assertThrows(
                 ExchangeRateDaoException.class,
@@ -98,5 +106,69 @@ public class ExchangeRateServiceTest {
         assertEquals("EUR", exchangeRate.targetCurrency().code());
         assertEquals("EUR", exchangeRate.targetCurrency().code());
         assertEquals(new BigDecimal("0.87"), exchangeRate.rate());
+    }
+
+    @Test
+    public void createThrowExceptionWhenExchangeRateAlreadyExists() {
+        ExchangeRateAlreadyExistsException exception = assertThrows(
+                ExchangeRateAlreadyExistsException.class,
+                () -> exchangeRateService.create("USD", "EUR", new BigDecimal("0.8"))
+        );
+
+        assertEquals("Валютная пара с таким кодом уже существует", exception.getMessage());
+    }
+
+    @Test
+    public void createThrowExceptionWhenAtLeastOneOfCurrenciesNotExists() {
+        ExchangeRateCurrencyNotExistsException exception = assertThrows(
+                ExchangeRateCurrencyNotExistsException.class,
+                () -> exchangeRateService.create("USD", "NEX", new BigDecimal("0.8"))
+        );
+
+        assertEquals("Одна (или обе) валюта из валютной пары не существует в БД", exception.getMessage());
+    }
+
+    @Test
+    public void createThrowExceptionWhenDatabaseIsUnavailable() {
+        CurrencyDao currencyDaoMock = mock(CurrencyDao.class);
+        ExchangeRateDao exchangeRateDaoMock = mock(ExchangeRateDao.class);
+        when(currencyDaoMock.findByCode(any())).thenReturn(Optional.of(new Currency(0, "", "", "")));
+        when(exchangeRateDaoMock.insert(any(), any(), any()))
+                .thenThrow(new ExchangeRateDaoException("База данных недоступна", new SQLException()));
+
+        ExchangeRateService exchangeRateServiceWithMock = new ExchangeRateService(exchangeRateDaoMock, currencyDaoMock);
+
+        ExchangeRateDaoException exception = assertThrows(
+                ExchangeRateDaoException.class,
+                () -> exchangeRateServiceWithMock.create("USD", "RUB", new BigDecimal("75.4"))
+        );
+
+        assertEquals("База данных недоступна", exception.getMessage());
+    }
+
+    @Test
+    public void shouldCreateNewExchangeRate() {
+        ExchangeRate exchangeRate = exchangeRateService.create("USD", "RUB", new BigDecimal("74.3"));
+
+        assertTrue(exchangeRate.id() > 0);
+        assertEquals("USD", exchangeRate.baseCurrency().code());
+        assertEquals("RUB", exchangeRate.targetCurrency().code());
+        assertEquals(new BigDecimal("74.3"), exchangeRate.rate());
+
+        deleteExchangeRate(exchangeRate.id());
+    }
+
+    private void deleteExchangeRate(int id) {
+        try (Connection conn = Database.getConnection();
+             PreparedStatement stmt =
+                     conn.prepareStatement(
+                             "DELETE FROM ExchangeRates WHERE id = ?")) {
+
+            stmt.setInt(1, id);
+            stmt.executeUpdate();
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

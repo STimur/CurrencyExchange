@@ -1,10 +1,12 @@
 package org.timur.roadmap.currencyexchange.dao;
 
+import org.timur.roadmap.currencyexchange.exception.DuplicateExchangeRateDaoException;
 import org.timur.roadmap.currencyexchange.exception.ExchangeRateDaoException;
 import org.timur.roadmap.currencyexchange.model.Currency;
 import org.timur.roadmap.currencyexchange.model.ExchangeRate;
 import org.timur.roadmap.currencyexchange.utility.Database;
 
+import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -123,4 +125,48 @@ public class ExchangeRateDao {
             throw new ExchangeRateDaoException("База данных недоступна", e);
         }
     }
+
+    public int insert(String baseCurrencyCode, String targetCurrencyCode, BigDecimal rate) {
+        String sql = """
+                INSERT INTO ExchangeRates (base_currency_id, target_currency_id, rate)
+                SELECT bc.id, tc.id, ?
+                FROM Currencies bc JOIN Currencies tc
+                WHERE bc.code = ? AND tc.code = ?;
+                """;
+
+        try (Connection conn = Database.getConnection();
+             PreparedStatement stmt =
+                     conn.prepareStatement(
+                             sql,
+                             Statement.RETURN_GENERATED_KEYS)) {
+
+            stmt.setBigDecimal(1, rate);
+            stmt.setString(2, baseCurrencyCode);
+            stmt.setString(3, targetCurrencyCode);
+
+            stmt.executeUpdate();
+
+            try (ResultSet keys = stmt.getGeneratedKeys()) {
+
+                if (!keys.next()) {
+                    throw new SQLException("Failed to obtain generated id");
+                }
+
+                return keys.getInt(1);
+            }
+
+        } catch (SQLException e) {
+            if (isUniqueConstraintViolation(e)) {
+                throw new DuplicateExchangeRateDaoException(e);
+            }
+
+            throw new ExchangeRateDaoException(e);
+        }
+    }
+
+    private boolean isUniqueConstraintViolation(SQLException e) {
+        return e.getErrorCode() == 19
+                && e.getMessage().contains("UNIQUE");
+    }
+
 }

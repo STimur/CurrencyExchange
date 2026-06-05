@@ -57,9 +57,9 @@ public class CurrencyServiceTest {
     public void shouldReturnListOfCurrencies() {
         List<Currency> currencies = currencyService.findAll();
 
-        assertEquals(3, currencies.size());
+        assertEquals(4, currencies.size());
         assertEquals("USD", currencies.getFirst().code());
-        assertEquals("JPY", currencies.getLast().code());
+        assertEquals("RUB", currencies.getLast().code());
     }
 
     @Test
