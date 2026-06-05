@@ -120,7 +120,7 @@ public class ExchangeRateDao {
                 return Optional.empty();
             }
         } catch (SQLException e) {
-            throw new ExchangeRateDaoException("Some DB Error", e);
+            throw new ExchangeRateDaoException("База данных недоступна", e);
         }
     }
 }

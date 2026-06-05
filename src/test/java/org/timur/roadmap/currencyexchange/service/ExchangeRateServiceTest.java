@@ -76,7 +76,7 @@ public class ExchangeRateServiceTest {
     public void findByCodePairThrowsExceptionWhenDatabaseIsUnavailable() {
         ExchangeRateDao exchangeRateDaoMock = mock(ExchangeRateDao.class);
         when(exchangeRateDaoMock.findByCodePair(any(), any()))
-                .thenThrow(new ExchangeRateDaoException("Some DB Error", new SQLException()));
+                .thenThrow(new ExchangeRateDaoException("База данных не доступна", new SQLException()));
 
         ExchangeRateService exchangeRateServiceWithMock = new ExchangeRateService(exchangeRateDaoMock);
 
@@ -85,7 +85,7 @@ public class ExchangeRateServiceTest {
                 () -> exchangeRateServiceWithMock.findByCodePair("USD", "EUR")
         );
 
-        assertEquals("Some DB Error", exception.getMessage());
+        assertEquals("База данных не доступна", exception.getMessage());
     }
 
     @Test
