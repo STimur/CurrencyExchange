@@ -79,7 +79,7 @@ public class CurrencyApiTest {
         List<Currency> currencies = mapper.readValue(response.body(), new TypeReference<>() {
         });
 
-        assertEquals(4, currencies.size());
+        assertEquals(5, currencies.size());
         assertEquals("USD", currencies.getFirst().code());
         assertEquals("RUB", currencies.getLast().code());
     }

@@ -9,11 +9,13 @@ import org.timur.roadmap.currencyexchange.exception.ExchangeRateAlreadyExistsExc
 import org.timur.roadmap.currencyexchange.exception.ExchangeRateCurrencyNotExistsException;
 import org.timur.roadmap.currencyexchange.exception.ExchangeRateDaoException;
 import org.timur.roadmap.currencyexchange.exception.ExchangeRateNotFoundException;
+import org.timur.roadmap.currencyexchange.model.Conversion;
 import org.timur.roadmap.currencyexchange.model.Currency;
 import org.timur.roadmap.currencyexchange.model.ExchangeRate;
 import org.timur.roadmap.currencyexchange.utility.Database;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -62,13 +64,13 @@ public class ExchangeRateServiceTest {
     public void shouldReturnListOfExchangeRates() {
         List<ExchangeRate> exchangeRates = exchangeRateService.findAll();
 
-        assertEquals(6, exchangeRates.size());
+        assertEquals(7, exchangeRates.size());
         assertEquals("USD", exchangeRates.getFirst().baseCurrency().code());
         assertEquals("EUR", exchangeRates.getFirst().targetCurrency().code());
         assertEquals(new BigDecimal("0.87"), exchangeRates.getFirst().rate());
-        assertEquals("JPY", exchangeRates.getLast().baseCurrency().code());
-        assertEquals("EUR", exchangeRates.getLast().targetCurrency().code());
-        assertEquals(new BigDecimal("1.176471"), exchangeRates.getLast().rate());
+        assertEquals("USD", exchangeRates.getLast().baseCurrency().code());
+        assertEquals("AUD", exchangeRates.getLast().targetCurrency().code());
+        assertEquals(new BigDecimal("1.45"), exchangeRates.getLast().rate());
     }
 
     @Test
@@ -197,6 +199,47 @@ public class ExchangeRateServiceTest {
 
         // update to initial value
         exchangeRateService.update("USD", "EUR", new BigDecimal("0.87"));
+    }
+
+    @Test
+    public void shouldConvertIfDirectRateExists() {
+        Conversion conversion = exchangeRateService.convert("USD", "AUD", new BigDecimal(10));
+
+        assertEquals("USD", conversion.baseCurrency().code());
+        assertEquals("AUD", conversion.targetCurrency().code());
+        assertEquals(new BigDecimal("1.45"), conversion.rate());
+        assertEquals(new BigDecimal("10"), conversion.amount());
+        assertEquals(new BigDecimal("14.50"), conversion.convertedAmount());
+    }
+
+    @Test
+    public void shouldConvertIfReverseRateExists() {
+        BigDecimal expectedConversionRate = BigDecimal.ONE.divide(new BigDecimal("1.45"), 6, RoundingMode.HALF_UP);
+        BigDecimal amount = new BigDecimal(10);
+
+        Conversion conversion = exchangeRateService.convert("AUD", "USD", amount);
+
+        assertEquals("AUD", conversion.baseCurrency().code());
+        assertEquals("USD", conversion.targetCurrency().code());
+        assertEquals(expectedConversionRate, conversion.rate());
+        assertEquals(amount, conversion.amount());
+        assertEquals(amount.multiply(expectedConversionRate), conversion.convertedAmount());
+    }
+
+    @Test
+    public void shouldConvertIfCrossUSDRateExists() {
+        BigDecimal EURtoUSDreverseRate = BigDecimal.ONE.divide(new BigDecimal("0.87"), 6, RoundingMode.HALF_UP);
+        BigDecimal USDtoAUDrate = new BigDecimal("1.45");
+        BigDecimal expectedConversionRate = EURtoUSDreverseRate.multiply(USDtoAUDrate);
+        BigDecimal amount = new BigDecimal(10);
+
+        Conversion conversion = exchangeRateService.convert("EUR", "AUD", amount);
+
+        assertEquals("EUR", conversion.baseCurrency().code());
+        assertEquals("AUD", conversion.targetCurrency().code());
+        assertEquals(expectedConversionRate, conversion.rate());
+        assertEquals(amount, conversion.amount());
+        assertEquals(amount.multiply(expectedConversionRate), conversion.convertedAmount());
     }
 
     private void deleteExchangeRate(int id) {

@@ -6,11 +6,14 @@ import org.timur.roadmap.currencyexchange.exception.DuplicateExchangeRateDaoExce
 import org.timur.roadmap.currencyexchange.exception.ExchangeRateAlreadyExistsException;
 import org.timur.roadmap.currencyexchange.exception.ExchangeRateCurrencyNotExistsException;
 import org.timur.roadmap.currencyexchange.exception.ExchangeRateNotFoundException;
+import org.timur.roadmap.currencyexchange.model.Conversion;
 import org.timur.roadmap.currencyexchange.model.Currency;
 import org.timur.roadmap.currencyexchange.model.ExchangeRate;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
+import java.util.Optional;
 
 public class ExchangeRateService {
 
@@ -51,5 +54,49 @@ public class ExchangeRateService {
     public ExchangeRate update(String baseCurrencyCode, String targetCurrencyCode, BigDecimal rate) {
         return exchangeRateDao.update(baseCurrencyCode, targetCurrencyCode, rate)
                 .orElseThrow(() -> new ExchangeRateNotFoundException("Валютная пара отсутствует в базе данных"));
+    }
+
+    public Conversion convert(String baseCurrencyCode, String targetCurrencyCode, BigDecimal amount) {
+        Optional<ExchangeRate> directRate = exchangeRateDao.findByCodePair(baseCurrencyCode, targetCurrencyCode);
+
+        if (directRate.isPresent()) {
+            ExchangeRate rate = directRate.get();
+
+            return new Conversion(
+                    rate.baseCurrency(),
+                    rate.targetCurrency(),
+                    rate.rate(),
+                    amount,
+                    amount.multiply(rate.rate())
+            );
+        }
+
+        Optional<ExchangeRate> reverseRate = exchangeRateDao.findByCodePair(targetCurrencyCode, baseCurrencyCode);
+
+        if (reverseRate.isPresent()) {
+            ExchangeRate rate = reverseRate.get();
+            BigDecimal exchangeRate = BigDecimal.ONE.divide(rate.rate(), 6, RoundingMode.HALF_UP);
+
+            return new Conversion(
+                    rate.targetCurrency(),
+                    rate.baseCurrency(),
+                    exchangeRate,
+                    amount,
+                    amount.multiply(exchangeRate)
+            );
+        }
+
+        ExchangeRate USDtoBaseRate = exchangeRateDao.findByCodePair("USD", baseCurrencyCode).get();
+        BigDecimal baseToUSDRate = BigDecimal.ONE.divide(USDtoBaseRate.rate(), 6, RoundingMode.HALF_UP);
+        ExchangeRate USDtoTargetRate = exchangeRateDao.findByCodePair("USD", targetCurrencyCode).get();
+        BigDecimal rate = baseToUSDRate.multiply(USDtoTargetRate.rate());
+
+        return new Conversion(
+                USDtoBaseRate.targetCurrency(),
+                USDtoTargetRate.targetCurrency(),
+                rate,
+                amount,
+                amount.multiply(rate)
+        );
     }
 }
