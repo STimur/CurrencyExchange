@@ -15,8 +15,11 @@ import org.timur.roadmap.currencyexchange.exception.ExchangeRateNotFoundExceptio
 import org.timur.roadmap.currencyexchange.model.ExchangeRate;
 import org.timur.roadmap.currencyexchange.service.ExchangeRateService;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.StringReader;
+import java.math.BigDecimal;
 import java.sql.SQLException;
 
 import static org.mockito.Mockito.verify;
@@ -103,6 +106,81 @@ public class ExchangeRateControllerTest {
         exchangeRateController.doGet(requestMock, responseMock);
 
         verify(exchangeRateServiceMock).findByCodePair("USD", "EUR");
+        verify(responseMock).setStatus(HttpServletResponse.SC_OK);
+        verify(responseMock).setContentType("application/json");
+        verify(mapperMock).writeValue(writerMock, exchangeRate);
+    }
+
+    @Test
+    void patchShouldReturn400WhenEmptyOrNullPath() throws IOException {
+        when(requestMock.getPathInfo()).thenReturn("/");
+
+        exchangeRateController.doPatch(requestMock, responseMock);
+
+        verify(responseMock).setStatus(HttpServletResponse.SC_BAD_REQUEST);
+        verify(responseMock).setContentType("application/json");
+        verify(mapperMock).writeValue(writerMock, new ErrorResponse("Коды валют пары отсутствуют в адресе"));
+    }
+
+    @Test
+    void patchShouldReturn400WhenInvalidInput() throws IOException {
+        BufferedReader br = new BufferedReader(new StringReader("\n"));
+        when(requestMock.getPathInfo()).thenReturn("/USDEUR");
+        when(requestMock.getReader()).thenReturn(br);
+
+        exchangeRateController.doPatch(requestMock, responseMock);
+
+        verify(responseMock).setStatus(HttpServletResponse.SC_BAD_REQUEST);
+        verify(responseMock).setContentType("application/json");
+        verify(mapperMock).writeValue(writerMock, new ErrorResponse("Отсутствует нужное поле формы"));
+    }
+
+    @Test
+    void patchShouldReturn404WhenExchangeRateNotFound() throws IOException {
+        String rate = "0.8";
+        BufferedReader br = new BufferedReader(new StringReader("rate=" + rate));
+        when(requestMock.getPathInfo()).thenReturn("/USDNEX");
+        when(requestMock.getReader()).thenReturn(br);
+        ExchangeRateNotFoundException e = new ExchangeRateNotFoundException("Валютная пара отсутствует в базе данных");
+        when(exchangeRateServiceMock.update("USD", "NEX", new BigDecimal(rate))).thenThrow(e);
+
+        exchangeRateController.doPatch(requestMock, responseMock);
+
+        verify(exchangeRateServiceMock).update("USD", "NEX", new BigDecimal(rate));
+        verify(responseMock).setStatus(HttpServletResponse.SC_NOT_FOUND);
+        verify(responseMock).setContentType("application/json");
+        verify(mapperMock).writeValue(writerMock, new ErrorResponse(e.getMessage()));
+    }
+
+    @Test
+    void patchShouldReturn500WhenErrorOnServer() throws IOException {
+        String rate = "0.8";
+        BufferedReader br = new BufferedReader(new StringReader("rate=" + rate));
+        when(requestMock.getPathInfo()).thenReturn("/USDEUR");
+        when(requestMock.getReader()).thenReturn(br);
+        ExchangeRateDaoException e = new ExchangeRateDaoException("База данных не доступна", new SQLException());
+        when(exchangeRateServiceMock.update("USD", "EUR", new BigDecimal(rate))).thenThrow(e);
+
+        exchangeRateController.doPatch(requestMock, responseMock);
+
+        verify(exchangeRateServiceMock).update("USD", "EUR", new BigDecimal(rate));
+        verify(responseMock).setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+        verify(responseMock).setContentType("application/json");
+        verify(mapperMock).writeValue(writerMock, new ErrorResponse(e.getMessage()));
+    }
+
+    @Test
+    void shouldUpdateExchangeRate() throws IOException {
+        String rate = "0.8";
+        BufferedReader br = new BufferedReader(new StringReader("rate=" + rate));
+        when(requestMock.getPathInfo()).thenReturn("/USDEUR");
+        when(requestMock.getReader()).thenReturn(br);
+        ExchangeRate exchangeRate = new ExchangeRate(0, null, null, null);
+        when(exchangeRateServiceMock.update("USD", "EUR", new BigDecimal(rate))).thenReturn(exchangeRate);
+
+        exchangeRateController.doPatch(requestMock, responseMock);
+
+        verify(exchangeRateServiceMock).update("USD", "EUR", new BigDecimal(rate));
         verify(responseMock).setStatus(HttpServletResponse.SC_OK);
         verify(responseMock).setContentType("application/json");
         verify(mapperMock).writeValue(writerMock, exchangeRate);

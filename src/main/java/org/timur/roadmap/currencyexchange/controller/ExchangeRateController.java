@@ -14,6 +14,10 @@ import org.timur.roadmap.currencyexchange.model.ExchangeRate;
 import org.timur.roadmap.currencyexchange.service.ExchangeRateService;
 
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.net.URLDecoder;
+
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 @WebServlet("/exchangeRate/*")
 public class ExchangeRateController extends HttpServlet {
@@ -54,6 +58,52 @@ public class ExchangeRateController extends HttpServlet {
             resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
             resp.setContentType("application/json");
             mapper.writeValue(resp.getWriter(), new ErrorResponse("Обменный курс для пары не найден"));
+        }
+        catch (ExchangeRateDaoException e) {
+            resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            resp.setContentType("application/json");
+            mapper.writeValue(resp.getWriter(), new ErrorResponse(e.getMessage()));
+        }
+    }
+
+    @Override
+    protected void doPatch(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        String path = req.getPathInfo();
+
+        if (path == null || path.equals("/")) {
+            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            resp.setContentType("application/json");
+            mapper.writeValue(resp.getWriter(), new ErrorResponse("Коды валют пары отсутствуют в адресе"));
+            return;
+        }
+
+        String[] params = req.getReader().readLine().split("=");
+        String rate = null;
+        if (params.length == 2)
+            rate = URLDecoder.decode(params[1], UTF_8);
+
+        if (rate == null || rate.isBlank()) {
+            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            resp.setContentType("application/json");
+            mapper.writeValue(resp.getWriter(), new ErrorResponse("Отсутствует нужное поле формы"));
+            return;
+        }
+
+        String baseCurrencyCode = path.substring(1, 4);
+        String targetCurrencyCode = path.substring(4, 7);
+
+        try {
+            ExchangeRate exchangeRate =
+                    exchangeRateService.update(baseCurrencyCode, targetCurrencyCode, new BigDecimal(rate));
+
+            resp.setStatus(HttpServletResponse.SC_OK);
+            resp.setContentType("application/json");
+            mapper.writeValue(resp.getWriter(), exchangeRate);
+        }
+        catch (ExchangeRateNotFoundException e) {
+            resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
+            resp.setContentType("application/json");
+            mapper.writeValue(resp.getWriter(), new ErrorResponse(e.getMessage()));
         }
         catch (ExchangeRateDaoException e) {
             resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);

@@ -67,6 +67,58 @@ public class ExchangeRateApiTest {
         deleteExchangeRate(exchangeRate.id());
     }
 
+    @Test
+    void shouldUpdateExchangeRate() throws Exception {
+        String body = "rate=0.8";
+
+        HttpRequest request =
+                HttpRequest.newBuilder()
+                        .uri(new URI(
+                                "http://localhost:8080/" +
+                                        "CurrencyExchange_war/exchangeRate/USDEUR"))
+                        .method("PATCH", HttpRequest.BodyPublishers.ofString(body))
+                        .header(
+                                "Content-Type",
+                                "application/x-www-form-urlencoded")
+                        .build();
+
+        HttpResponse<String> response =
+                client.send(
+                        request,
+                        HttpResponse.BodyHandlers.ofString());
+
+        assertEquals(200, response.statusCode());
+
+        ObjectMapper mapper = new ObjectMapper();
+
+        ExchangeRate exchangeRate =
+                mapper.readValue(
+                        response.body(),
+                        ExchangeRate.class);
+
+        assertTrue(exchangeRate.id() > 0);
+        assertEquals("USD", exchangeRate.baseCurrency().code());
+        assertEquals("EUR", exchangeRate.targetCurrency().code());
+        assertEquals(new BigDecimal("0.8"), exchangeRate.rate());
+
+        updateExchangeRate(exchangeRate.id(), new BigDecimal("0.87"));
+    }
+
+    private void updateExchangeRate(int id, BigDecimal rate) {
+
+        try (Connection conn = Database.getConnection();
+             PreparedStatement stmt =
+                     conn.prepareStatement(
+                             "UPDATE ExchangeRates SET rate = ? WHERE id = ?")) {
+            stmt.setBigDecimal(1, rate);
+            stmt.setInt(2, id);
+            stmt.executeUpdate();
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     private void deleteExchangeRate(int id) {
 
         try (Connection conn = Database.getConnection();
