@@ -25,6 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class ExchangeRateServiceTest {
@@ -156,6 +157,46 @@ public class ExchangeRateServiceTest {
         assertEquals(new BigDecimal("74.3"), exchangeRate.rate());
 
         deleteExchangeRate(exchangeRate.id());
+    }
+
+    @Test
+    public void updateThrowExceptionWhenCurrencyPairNotExists() {
+        ExchangeRateNotFoundException exception = assertThrows(
+                ExchangeRateNotFoundException.class,
+                () -> exchangeRateService.update("USD", "NEX", new BigDecimal("0.8"))
+        );
+
+        assertEquals("Валютная пара отсутствует в базе данных", exception.getMessage());
+    }
+
+    @Test
+    public void updateThrowExceptionWhenDatabaseIsUnavailable() {
+        ExchangeRateDao exchangeRateDaoMock = mock(ExchangeRateDao.class);
+        when(exchangeRateDaoMock.update("USD", "NEX", new BigDecimal("0.8")))
+                .thenThrow(new ExchangeRateDaoException("База данных недоступна", new SQLException()));
+
+        ExchangeRateService exchangeRateServiceWithMock = new ExchangeRateService(exchangeRateDaoMock, null);
+
+        ExchangeRateDaoException exception = assertThrows(
+                ExchangeRateDaoException.class,
+                () -> exchangeRateServiceWithMock.update("USD", "NEX", new BigDecimal("0.8"))
+        );
+
+        verify(exchangeRateDaoMock).update("USD", "NEX", new BigDecimal("0.8"));
+        assertEquals("База данных недоступна", exception.getMessage());
+    }
+
+    @Test
+    public void shouldUpdateExchangeRate() {
+        ExchangeRate exchangeRate = exchangeRateService.update("USD", "EUR", new BigDecimal("0.8"));
+
+        assertEquals(1, exchangeRate.id());
+        assertEquals("USD", exchangeRate.baseCurrency().code());
+        assertEquals("EUR", exchangeRate.targetCurrency().code());
+        assertEquals(new BigDecimal("0.8"), exchangeRate.rate());
+
+        // update to initial value
+        exchangeRateService.update("USD", "EUR", new BigDecimal("0.87"));
     }
 
     private void deleteExchangeRate(int id) {

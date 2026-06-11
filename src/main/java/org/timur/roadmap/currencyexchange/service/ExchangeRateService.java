@@ -47,4 +47,9 @@ public class ExchangeRateService {
             throw new ExchangeRateAlreadyExistsException("Валютная пара с таким кодом уже существует", e);
         }
     }
+
+    public ExchangeRate update(String baseCurrencyCode, String targetCurrencyCode, BigDecimal rate) {
+        return exchangeRateDao.update(baseCurrencyCode, targetCurrencyCode, rate)
+                .orElseThrow(() -> new ExchangeRateNotFoundException("Валютная пара отсутствует в базе данных"));
+    }
 }
