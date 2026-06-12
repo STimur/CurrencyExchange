@@ -203,19 +203,20 @@ public class ExchangeRateServiceTest {
 
     @Test
     public void shouldConvertIfDirectRateExists() {
-        Conversion conversion = exchangeRateService.convert("USD", "AUD", new BigDecimal(10));
+        Conversion conversion = exchangeRateService.convert("USD", "AUD", new BigDecimal("10.5"));
 
         assertEquals("USD", conversion.baseCurrency().code());
         assertEquals("AUD", conversion.targetCurrency().code());
         assertEquals(new BigDecimal("1.45"), conversion.rate());
-        assertEquals(new BigDecimal("10"), conversion.amount());
-        assertEquals(new BigDecimal("14.50"), conversion.convertedAmount());
+        assertEquals(new BigDecimal("10.5"), conversion.amount());
+        assertEquals(new BigDecimal("15.23"), conversion.convertedAmount());
+        assertEquals(2, conversion.convertedAmount().scale());
     }
 
     @Test
     public void shouldConvertIfReverseRateExists() {
         BigDecimal expectedConversionRate = BigDecimal.ONE.divide(new BigDecimal("1.45"), 6, RoundingMode.HALF_UP);
-        BigDecimal amount = new BigDecimal(10);
+        BigDecimal amount = new BigDecimal("10.5");
 
         Conversion conversion = exchangeRateService.convert("AUD", "USD", amount);
 
@@ -223,7 +224,11 @@ public class ExchangeRateServiceTest {
         assertEquals("USD", conversion.targetCurrency().code());
         assertEquals(expectedConversionRate, conversion.rate());
         assertEquals(amount, conversion.amount());
-        assertEquals(amount.multiply(expectedConversionRate), conversion.convertedAmount());
+        assertEquals(
+                amount.multiply(expectedConversionRate).setScale(2, RoundingMode.HALF_UP),
+                conversion.convertedAmount()
+        );
+        assertEquals(2, conversion.convertedAmount().scale());
     }
 
     @Test
@@ -231,7 +236,7 @@ public class ExchangeRateServiceTest {
         BigDecimal EURtoUSDreverseRate = BigDecimal.ONE.divide(new BigDecimal("0.87"), 6, RoundingMode.HALF_UP);
         BigDecimal USDtoAUDrate = new BigDecimal("1.45");
         BigDecimal expectedConversionRate = EURtoUSDreverseRate.multiply(USDtoAUDrate);
-        BigDecimal amount = new BigDecimal(10);
+        BigDecimal amount = new BigDecimal("10.5");
 
         Conversion conversion = exchangeRateService.convert("EUR", "AUD", amount);
 
@@ -239,7 +244,11 @@ public class ExchangeRateServiceTest {
         assertEquals("AUD", conversion.targetCurrency().code());
         assertEquals(expectedConversionRate, conversion.rate());
         assertEquals(amount, conversion.amount());
-        assertEquals(amount.multiply(expectedConversionRate), conversion.convertedAmount());
+        assertEquals(
+                amount.multiply(expectedConversionRate).setScale(2, RoundingMode.HALF_UP),
+                conversion.convertedAmount()
+        );
+        assertEquals(2, conversion.convertedAmount().scale());
     }
 
     private void deleteExchangeRate(int id) {

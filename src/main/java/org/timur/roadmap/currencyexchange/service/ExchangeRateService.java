@@ -67,7 +67,7 @@ public class ExchangeRateService {
                     rate.targetCurrency(),
                     rate.rate(),
                     amount,
-                    amount.multiply(rate.rate())
+                    amount.multiply(rate.rate()).setScale(2, RoundingMode.HALF_UP)
             );
         }
 
@@ -82,7 +82,7 @@ public class ExchangeRateService {
                     rate.baseCurrency(),
                     exchangeRate,
                     amount,
-                    amount.multiply(exchangeRate)
+                    amount.multiply(exchangeRate).setScale(2, RoundingMode.HALF_UP)
             );
         }
 
@@ -96,7 +96,7 @@ public class ExchangeRateService {
                 USDtoTargetRate.targetCurrency(),
                 rate,
                 amount,
-                amount.multiply(rate)
+                amount.multiply(rate).setScale(2, RoundingMode.HALF_UP)
         );
     }
 }
