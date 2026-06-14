@@ -35,7 +35,7 @@ public class CurrencyApiTest {
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(new URI(
                         "http://localhost:8080/" +
-                                "CurrencyExchange_war_exploded/currency/EUR"))
+                                "CurrencyExchange/currency/EUR"))
                 .GET()
                 .build();
 
@@ -52,7 +52,7 @@ public class CurrencyApiTest {
         Currency currency = mapper.readValue(response.body(), Currency.class);
         assertEquals(2, currency.id());
         assertEquals("EUR", currency.code());
-        assertEquals("Euro", currency.fullName());
+        assertEquals("Euro", currency.name());
         assertEquals("€", currency.sign());
     }
 
@@ -62,7 +62,7 @@ public class CurrencyApiTest {
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(new URI(
                         "http://localhost:8080/" +
-                                "CurrencyExchange_war_exploded/currencies"))
+                                "CurrencyExchange/currencies"))
                 .GET()
                 .build();
 
@@ -94,7 +94,7 @@ public class CurrencyApiTest {
                     HttpRequest.newBuilder()
                             .uri(new URI(
                                     "http://localhost:8080/" +
-                                            "CurrencyExchange_war_exploded/currencies"))
+                                            "CurrencyExchange/currencies"))
                             .header(
                                     "Content-Type",
                                     "application/x-www-form-urlencoded")
@@ -119,7 +119,7 @@ public class CurrencyApiTest {
 
             assertTrue(currency.id() > 0);
             assertEquals("TEST", currency.code());
-            assertEquals("TEST", currency.fullName());
+            assertEquals("TEST", currency.name());
             assertEquals("TEST", currency.sign());
         } finally {
             deleteCurrency("TEST");

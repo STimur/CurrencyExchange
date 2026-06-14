@@ -128,7 +128,7 @@ public class CurrencyServiceTest {
 
             assertTrue(currency.id() > 0);
             assertEquals("TEST", currency.code());
-            assertEquals("TEST", currency.fullName());
+            assertEquals("TEST", currency.name());
             assertEquals("TEST", currency.sign());
         } finally {
             deleteCurrency("TEST");
