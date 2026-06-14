@@ -9,6 +9,13 @@
           </advancedOptions>
         </fileTransfer>
       </webServer>
+      <webServer id="9af55fca-a60b-4220-91d7-adf4d129dcf4" name="RuVDS Data">
+        <fileTransfer accessType="SFTP" host="194.87.206.221" port="22" sshConfigId="fb1579f9-a153-47b4-bee5-5b86990bb474" sshConfig="root@194.87.206.221:22 password">
+          <advancedOptions>
+            <advancedOptions dataProtectionLevel="Private" keepAliveTimeout="0" passiveMode="true" shareSSLContext="true" />
+          </advancedOptions>
+        </fileTransfer>
+      </webServer>
     </option>
   </component>
 </project>
