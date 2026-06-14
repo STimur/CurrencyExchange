@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="WebServers">
+    <option name="servers">
+      <webServer id="eb8e6e33-4aa3-4a47-8a23-7f7702161d49" name="RuVDS">
+        <fileTransfer accessType="SFTP" host="194.87.206.221" port="22" sshConfigId="fb1579f9-a153-47b4-bee5-5b86990bb474" sshConfig="root@194.87.206.221:22 password">
+          <advancedOptions>
+            <advancedOptions dataProtectionLevel="Private" keepAliveTimeout="0" passiveMode="true" shareSSLContext="true" />
+          </advancedOptions>
+        </fileTransfer>
+      </webServer>
+    </option>
+  </component>
+</project>

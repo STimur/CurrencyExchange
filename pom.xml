@@ -76,12 +76,18 @@
     </dependencyManagement>
 
     <build>
+        <finalName>CurrencyExchange</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>3.5.2</version> <!-- Fully compatible with Java 21 -->
                 <!-- without this Mockito tests didn't work -->
+                <configuration>
+                    <excludes>
+                        <exclude>**/**ApiTest.java</exclude>
+                    </excludes>
+                </configuration>
             </plugin>
         </plugins>
     </build>

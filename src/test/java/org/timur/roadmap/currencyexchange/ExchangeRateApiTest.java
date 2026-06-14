@@ -36,7 +36,7 @@ public class ExchangeRateApiTest {
                 HttpRequest.newBuilder()
                         .uri(new URI(
                                 "http://localhost:8080/" +
-                                        "CurrencyExchange_war/exchangeRates"))
+                                        "CurrencyExchange_war_exploded/exchangeRates"))
                         .header(
                                 "Content-Type",
                                 "application/x-www-form-urlencoded")
@@ -75,7 +75,7 @@ public class ExchangeRateApiTest {
                 HttpRequest.newBuilder()
                         .uri(new URI(
                                 "http://localhost:8080/" +
-                                        "CurrencyExchange_war/exchangeRate/USDEUR"))
+                                        "CurrencyExchange_war_exploded/exchangeRate/USDEUR"))
                         .method("PATCH", HttpRequest.BodyPublishers.ofString(body))
                         .header(
                                 "Content-Type",

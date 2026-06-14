@@ -35,7 +35,7 @@ public class CurrencyApiTest {
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(new URI(
                         "http://localhost:8080/" +
-                                "CurrencyExchange_war/currency/EUR"))
+                                "CurrencyExchange_war_exploded/currency/EUR"))
                 .GET()
                 .build();
 
@@ -62,7 +62,7 @@ public class CurrencyApiTest {
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(new URI(
                         "http://localhost:8080/" +
-                                "CurrencyExchange_war/currencies"))
+                                "CurrencyExchange_war_exploded/currencies"))
                 .GET()
                 .build();
 
@@ -94,7 +94,7 @@ public class CurrencyApiTest {
                     HttpRequest.newBuilder()
                             .uri(new URI(
                                     "http://localhost:8080/" +
-                                            "CurrencyExchange_war/currencies"))
+                                            "CurrencyExchange_war_exploded/currencies"))
                             .header(
                                     "Content-Type",
                                     "application/x-www-form-urlencoded")
