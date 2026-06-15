@@ -40,12 +40,10 @@ public class ExchangeRatesController extends HttpServlet {
             List<ExchangeRate> exchangeRates = exchangeRateService.findAll();
 
             resp.setStatus(HttpServletResponse.SC_OK);
-            resp.setContentType("application/json");
             mapper.writeValue(resp.getWriter(), exchangeRates);
 
         } catch (ExchangeRateDaoException e) {
             resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            resp.setContentType("application/json");
             mapper.writeValue(resp.getWriter(), new ErrorResponse(e.getMessage()));
         }
     }
@@ -60,7 +58,6 @@ public class ExchangeRatesController extends HttpServlet {
                 || targetCurrencyCode == null || targetCurrencyCode.isBlank()
                 || rate == null || rate.isBlank()) {
             resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            resp.setContentType("application/json");
             mapper.writeValue(resp.getWriter(), new ErrorResponse("Отсутствует нужное поле формы"));
             return;
         }
@@ -70,23 +67,19 @@ public class ExchangeRatesController extends HttpServlet {
                     exchangeRateService.create(baseCurrencyCode, targetCurrencyCode, new BigDecimal(rate));
 
             resp.setStatus(HttpServletResponse.SC_CREATED);
-            resp.setContentType("application/json");
             mapper.writeValue(resp.getWriter(), exchangeRate);
         }
         catch (ExchangeRateAlreadyExistsException e) {
             resp.setStatus(HttpServletResponse.SC_CONFLICT);
-            resp.setContentType("application/json");
             mapper.writeValue(resp.getWriter(), new ErrorResponse(e.getMessage()));
         }
         catch (ExchangeRateCurrencyNotExistsException e) {
             resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
-            resp.setContentType("application/json");
             mapper.writeValue(resp.getWriter(),
                     new ErrorResponse("Одна (или обе) валюта из валютной пары не существует в БД"));
         }
         catch (ExchangeRateDaoException | CurrencyDaoException e) {
             resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            resp.setContentType("application/json");
             mapper.writeValue(resp.getWriter(), new ErrorResponse(e.getMessage()));
         }
     }

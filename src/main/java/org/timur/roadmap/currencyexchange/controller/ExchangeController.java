@@ -38,7 +38,6 @@ public class ExchangeController extends HttpServlet {
                 exchangeRateService.convert(baseCurrencyCode, targetCurrencyCode, new BigDecimal(amount));
 
         resp.setStatus(HttpServletResponse.SC_OK);
-        resp.setContentType("application/json");
         mapper.writeValue(resp.getWriter(), conversion);
     }
 }

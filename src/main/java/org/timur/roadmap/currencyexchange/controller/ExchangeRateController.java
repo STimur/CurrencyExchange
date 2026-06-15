@@ -41,7 +41,6 @@ public class ExchangeRateController extends HttpServlet {
 
         if (path == null || path.equals("/")) {
             resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            resp.setContentType("application/json");
             mapper.writeValue(resp.getWriter(), new ErrorResponse("Коды валют пары отсутствуют в адресе"));
             return;
         }
@@ -51,17 +50,14 @@ public class ExchangeRateController extends HttpServlet {
         try {
             ExchangeRate exchangeRate = exchangeRateService.findByCodePair(baseCurrencyCode, targetCurrencyCode);
             resp.setStatus(HttpServletResponse.SC_OK);
-            resp.setContentType("application/json");
             mapper.writeValue(resp.getWriter(), exchangeRate);
 
         } catch (ExchangeRateNotFoundException e) {
             resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
-            resp.setContentType("application/json");
             mapper.writeValue(resp.getWriter(), new ErrorResponse("Обменный курс для пары не найден"));
         }
         catch (ExchangeRateDaoException e) {
             resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            resp.setContentType("application/json");
             mapper.writeValue(resp.getWriter(), new ErrorResponse(e.getMessage()));
         }
     }
@@ -72,7 +68,6 @@ public class ExchangeRateController extends HttpServlet {
 
         if (path == null || path.equals("/")) {
             resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            resp.setContentType("application/json");
             mapper.writeValue(resp.getWriter(), new ErrorResponse("Коды валют пары отсутствуют в адресе"));
             return;
         }
@@ -84,7 +79,6 @@ public class ExchangeRateController extends HttpServlet {
 
         if (rate == null || rate.isBlank()) {
             resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            resp.setContentType("application/json");
             mapper.writeValue(resp.getWriter(), new ErrorResponse("Отсутствует нужное поле формы"));
             return;
         }
@@ -97,17 +91,14 @@ public class ExchangeRateController extends HttpServlet {
                     exchangeRateService.update(baseCurrencyCode, targetCurrencyCode, new BigDecimal(rate));
 
             resp.setStatus(HttpServletResponse.SC_OK);
-            resp.setContentType("application/json");
             mapper.writeValue(resp.getWriter(), exchangeRate);
         }
         catch (ExchangeRateNotFoundException e) {
             resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
-            resp.setContentType("application/json");
             mapper.writeValue(resp.getWriter(), new ErrorResponse(e.getMessage()));
         }
         catch (ExchangeRateDaoException e) {
             resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            resp.setContentType("application/json");
             mapper.writeValue(resp.getWriter(), new ErrorResponse(e.getMessage()));
         }
     }

@@ -52,7 +52,6 @@ public class CurrenciesControllerTest {
         currenciesController.doGet(requestMock, responseMock);
 
         verify(currencyServiceMock).findAll();
-        verify(responseMock).setContentType("application/json");
         verify(responseMock).setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         verify(mapperMock).writeValue(writerMock, new ErrorResponse(e.getMessage()));
     }
@@ -65,7 +64,6 @@ public class CurrenciesControllerTest {
         currenciesController.doGet(requestMock, responseMock);
 
         verify(currencyServiceMock).findAll();
-        verify(responseMock).setContentType("application/json");
         verify(responseMock).setStatus(HttpServletResponse.SC_OK);
         verify(mapperMock).writeValue(writerMock, currencies);
     }
@@ -76,7 +74,6 @@ public class CurrenciesControllerTest {
 
         currenciesController.doPost(requestMock, responseMock);
 
-        verify(responseMock).setContentType("application/json");
         verify(responseMock).setStatus(HttpServletResponse.SC_BAD_REQUEST);
         verify(mapperMock).writeValue(writerMock, new ErrorResponse("Отсутствует нужное поле формы"));
     }
@@ -94,7 +91,6 @@ public class CurrenciesControllerTest {
         currenciesController.doPost(requestMock, responseMock);
 
         verify(currencyServiceMock).create(code, name, sign);
-        verify(responseMock).setContentType("application/json");
         verify(responseMock).setStatus(HttpServletResponse.SC_CONFLICT);
         verify(mapperMock).writeValue(writerMock, new ErrorResponse("Валюта с таким кодом уже существует"));
     }
@@ -113,7 +109,6 @@ public class CurrenciesControllerTest {
         currenciesController.doPost(requestMock, responseMock);
 
         verify(currencyServiceMock).create(code, name, sign);
-        verify(responseMock).setContentType("application/json");
         verify(responseMock).setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         verify(mapperMock).writeValue(writerMock, new ErrorResponse(e.getMessage()));
     }
@@ -132,7 +127,6 @@ public class CurrenciesControllerTest {
         currenciesController.doPost(requestMock, responseMock);
 
         verify(currencyServiceMock).create(code, name, sign);
-        verify(responseMock).setContentType("application/json");
         verify(responseMock).setStatus(HttpServletResponse.SC_CREATED);
         verify(mapperMock).writeValue(writerMock, currency);
     }

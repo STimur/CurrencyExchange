@@ -35,12 +35,10 @@ public class CurrenciesController extends HttpServlet {
         try {
             List<Currency> currencies = currencyService.findAll();
 
-            resp.setContentType("application/json");
             resp.setStatus(HttpServletResponse.SC_OK);
             mapper.writeValue(resp.getWriter(), currencies);
 
         } catch (CurrencyDaoException e) {
-            resp.setContentType("application/json");
             resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             mapper.writeValue(resp.getWriter(), new ErrorResponse(e.getMessage()));
         }
@@ -53,7 +51,6 @@ public class CurrenciesController extends HttpServlet {
         String sign = req.getParameter("sign");
 
         if (code == null || code.isBlank() || name == null || name.isBlank() || sign == null || sign.isBlank()) {
-            resp.setContentType("application/json");
             resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             mapper.writeValue(resp.getWriter(), new ErrorResponse("Отсутствует нужное поле формы"));
             return;
@@ -63,17 +60,14 @@ public class CurrenciesController extends HttpServlet {
             Currency currency = currencyService.create(code, name, sign);
 
             resp.setStatus(HttpServletResponse.SC_CREATED);
-            resp.setContentType("application/json");
             mapper.writeValue(resp.getWriter(), currency);
         }
         catch (CurrencyAlreadyExistsException e) {
             resp.setStatus(HttpServletResponse.SC_CONFLICT);
-            resp.setContentType("application/json");
             mapper.writeValue(resp.getWriter(), new ErrorResponse("Валюта с таким кодом уже существует"));
         }
         catch (CurrencyDaoException e) {
             resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            resp.setContentType("application/json");
             mapper.writeValue(resp.getWriter(), new ErrorResponse(e.getMessage()));
         }
     }

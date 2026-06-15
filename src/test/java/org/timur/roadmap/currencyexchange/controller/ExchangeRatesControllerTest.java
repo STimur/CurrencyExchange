@@ -56,7 +56,6 @@ public class ExchangeRatesControllerTest {
 
         verify(exchangeRateServiceMock).findAll();
         verify(responseMock).setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-        verify(responseMock).setContentType("application/json");
         verify(mapperMock).writeValue(writerMock, new ErrorResponse(e.getMessage()));
     }
 
@@ -69,7 +68,6 @@ public class ExchangeRatesControllerTest {
 
         verify(exchangeRateServiceMock).findAll();
         verify(responseMock).setStatus(HttpServletResponse.SC_OK);
-        verify(responseMock).setContentType("application/json");
         verify(mapperMock).writeValue(writerMock, exchangeRates);
     }
 
@@ -80,7 +78,6 @@ public class ExchangeRatesControllerTest {
         exchangeRatesController.doPost(requestMock, responseMock);
 
         verify(responseMock).setStatus(HttpServletResponse.SC_BAD_REQUEST);
-        verify(responseMock).setContentType("application/json");
         verify(mapperMock).writeValue(writerMock, new ErrorResponse("Отсутствует нужное поле формы"));
     }
 
@@ -99,7 +96,6 @@ public class ExchangeRatesControllerTest {
 
         verify(exchangeRateServiceMock).create(baseCurrency, targetCurrency, new BigDecimal(rate));
         verify(responseMock).setStatus(HttpServletResponse.SC_CONFLICT);
-        verify(responseMock).setContentType("application/json");
         verify(mapperMock).writeValue(writerMock, new ErrorResponse("Валютная пара (USD, EUR) уже существует"));
     }
 
@@ -120,7 +116,6 @@ public class ExchangeRatesControllerTest {
 
         verify(exchangeRateServiceMock).create(baseCurrency, targetCurrency, new BigDecimal(rate));
         verify(responseMock).setStatus(HttpServletResponse.SC_NOT_FOUND);
-        verify(responseMock).setContentType("application/json");
         verify(mapperMock).writeValue(writerMock,
                 new ErrorResponse("Одна (или обе) валюта из валютной пары не существует в БД"));
     }
@@ -140,7 +135,6 @@ public class ExchangeRatesControllerTest {
 
         verify(exchangeRateServiceMock).create(baseCurrency, targetCurrency, new BigDecimal(rate));
         verify(responseMock).setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-        verify(responseMock).setContentType("application/json");
         verify(mapperMock).writeValue(writerMock, new ErrorResponse("База данных недоступна"));
     }
 
@@ -160,7 +154,6 @@ public class ExchangeRatesControllerTest {
 
         verify(exchangeRateServiceMock).create(baseCurrency, targetCurrency, new BigDecimal(rate));
         verify(responseMock).setStatus(HttpServletResponse.SC_CREATED);
-        verify(responseMock).setContentType("application/json");
         verify(mapperMock).writeValue(writerMock, exchangeRate);
     }
 }

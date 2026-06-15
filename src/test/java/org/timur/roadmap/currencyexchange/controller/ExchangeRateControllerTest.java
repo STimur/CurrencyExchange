@@ -54,7 +54,6 @@ public class ExchangeRateControllerTest {
         exchangeRateController.doGet(requestMock, responseMock);
 
         verify(responseMock).setStatus(HttpServletResponse.SC_BAD_REQUEST);
-        verify(responseMock).setContentType("application/json");
         verify(mapperMock).writeValue(writerMock, new ErrorResponse("Коды валют пары отсутствуют в адресе"));
     }
 
@@ -65,7 +64,6 @@ public class ExchangeRateControllerTest {
         exchangeRateController.doGet(requestMock, responseMock);
 
         verify(responseMock).setStatus(HttpServletResponse.SC_BAD_REQUEST);
-        verify(responseMock).setContentType("application/json");
         verify(mapperMock).writeValue(writerMock, new ErrorResponse("Коды валют пары отсутствуют в адресе"));
     }
 
@@ -79,7 +77,6 @@ public class ExchangeRateControllerTest {
 
         verify(exchangeRateServiceMock).findByCodePair("USD", "NEX");
         verify(responseMock).setStatus(HttpServletResponse.SC_NOT_FOUND);
-        verify(responseMock).setContentType("application/json");
         verify(mapperMock).writeValue(writerMock, new ErrorResponse("Обменный курс для пары не найден"));
     }
 
@@ -93,7 +90,6 @@ public class ExchangeRateControllerTest {
 
         verify(exchangeRateServiceMock).findByCodePair("USD", "EUR");
         verify(responseMock).setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-        verify(responseMock).setContentType("application/json");
         verify(mapperMock).writeValue(writerMock, new ErrorResponse(e.getMessage()));
     }
 
@@ -107,7 +103,6 @@ public class ExchangeRateControllerTest {
 
         verify(exchangeRateServiceMock).findByCodePair("USD", "EUR");
         verify(responseMock).setStatus(HttpServletResponse.SC_OK);
-        verify(responseMock).setContentType("application/json");
         verify(mapperMock).writeValue(writerMock, exchangeRate);
     }
 
@@ -118,7 +113,6 @@ public class ExchangeRateControllerTest {
         exchangeRateController.doPatch(requestMock, responseMock);
 
         verify(responseMock).setStatus(HttpServletResponse.SC_BAD_REQUEST);
-        verify(responseMock).setContentType("application/json");
         verify(mapperMock).writeValue(writerMock, new ErrorResponse("Коды валют пары отсутствуют в адресе"));
     }
 
@@ -131,7 +125,6 @@ public class ExchangeRateControllerTest {
         exchangeRateController.doPatch(requestMock, responseMock);
 
         verify(responseMock).setStatus(HttpServletResponse.SC_BAD_REQUEST);
-        verify(responseMock).setContentType("application/json");
         verify(mapperMock).writeValue(writerMock, new ErrorResponse("Отсутствует нужное поле формы"));
     }
 
@@ -148,7 +141,6 @@ public class ExchangeRateControllerTest {
 
         verify(exchangeRateServiceMock).update("USD", "NEX", new BigDecimal(rate));
         verify(responseMock).setStatus(HttpServletResponse.SC_NOT_FOUND);
-        verify(responseMock).setContentType("application/json");
         verify(mapperMock).writeValue(writerMock, new ErrorResponse(e.getMessage()));
     }
 
@@ -165,7 +157,6 @@ public class ExchangeRateControllerTest {
 
         verify(exchangeRateServiceMock).update("USD", "EUR", new BigDecimal(rate));
         verify(responseMock).setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-        verify(responseMock).setContentType("application/json");
         verify(mapperMock).writeValue(writerMock, new ErrorResponse(e.getMessage()));
     }
 
@@ -182,7 +173,6 @@ public class ExchangeRateControllerTest {
 
         verify(exchangeRateServiceMock).update("USD", "EUR", new BigDecimal(rate));
         verify(responseMock).setStatus(HttpServletResponse.SC_OK);
-        verify(responseMock).setContentType("application/json");
         verify(mapperMock).writeValue(writerMock, exchangeRate);
     }
 }

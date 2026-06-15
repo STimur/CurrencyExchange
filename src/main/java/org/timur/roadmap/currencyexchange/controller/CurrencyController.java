@@ -35,7 +35,6 @@ public class CurrencyController extends HttpServlet {
         String path = req.getPathInfo();
 
         if (path == null || path.equals("/")) {
-            resp.setContentType("application/json");
             resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             mapper.writeValue(resp.getWriter(), new ErrorResponse("Код валюты отсутствует в адресе"));
             return;
@@ -44,17 +43,14 @@ public class CurrencyController extends HttpServlet {
         String code = path.substring(1);
         try {
             Currency currency = currencyService.findByCode(code);
-            resp.setContentType("application/json");
             resp.setStatus(HttpServletResponse.SC_OK);
             mapper.writeValue(resp.getWriter(), currency);
 
         } catch (CurrencyNotFoundException e) {
-            resp.setContentType("application/json");
             resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
             mapper.writeValue(resp.getWriter(), new ErrorResponse("Валюта не найдена"));
 
         } catch (CurrencyDaoException e) {
-            resp.setContentType("application/json");
             resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             mapper.writeValue(resp.getWriter(), new ErrorResponse(e.getMessage()));
         }

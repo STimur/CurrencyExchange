@@ -53,7 +53,6 @@ public class ExchangeControllerTest {
 
         verify(exchangeRateServiceMock).convert("USD", "AUD", new BigDecimal("10"));
         verify(responseMock).setStatus(HttpServletResponse.SC_OK);
-        verify(responseMock).setContentType("application/json");
         verify(mapperMock).writeValue(writerMock, conversion);
     }
 }
