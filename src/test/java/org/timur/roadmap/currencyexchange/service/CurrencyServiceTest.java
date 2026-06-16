@@ -40,17 +40,17 @@ public class CurrencyServiceTest {
     @Test
     public void findAllThrowExceptionWhenDatabaseIsUnavailable() {
         CurrencyDao currencyDaoMock = mock(CurrencyDao.class);
-        when(currencyDaoMock.findAll())
-                .thenThrow(new CurrencyDaoException("Some DB Error", new SQLException()));
+        CurrencyDaoException e = new CurrencyDaoException(new SQLException());
+        when(currencyDaoMock.findAll()).thenThrow(e);
 
         CurrencyService currencyServiceWithMock = new CurrencyService(currencyDaoMock);
 
-        RuntimeException exception = assertThrows(
+        CurrencyDaoException exceptionThrown = assertThrows(
                 CurrencyDaoException.class,
                 currencyServiceWithMock::findAll
         );
 
-        assertEquals("Some DB Error", exception.getMessage());
+        assertEquals(e.getMessage(), exceptionThrown.getMessage());
     }
 
     @Test
@@ -75,17 +75,17 @@ public class CurrencyServiceTest {
     @Test
     public void findByCodeThrowsExceptionWhenDatabaseIsUnavailable() {
         CurrencyDao currencyDaoMock = mock(CurrencyDao.class);
-        when(currencyDaoMock.findByCode(any()))
-                .thenThrow(new CurrencyDaoException("Some DB Error", new SQLException()));
+        CurrencyDaoException e = new CurrencyDaoException(new SQLException());
+        when(currencyDaoMock.findByCode(any())).thenThrow(e);
 
         CurrencyService currencyServiceWithMock = new CurrencyService(currencyDaoMock);
 
-        CurrencyDaoException exception = assertThrows(
+        CurrencyDaoException exceptionThrown = assertThrows(
                 CurrencyDaoException.class,
                 () -> currencyServiceWithMock.findByCode("XXX")
         );
 
-        assertEquals("Some DB Error", exception.getMessage());
+        assertEquals(e.getMessage(), exceptionThrown.getMessage());
     }
 
     @Test
@@ -108,17 +108,17 @@ public class CurrencyServiceTest {
     @Test
     public void createThrowExceptionWhenDatabaseIsUnavailable() {
         CurrencyDao currencyDaoMock = mock(CurrencyDao.class);
-        when(currencyDaoMock.insert(any(), any(), any()))
-                .thenThrow(new CurrencyDaoException("Some DB Error", new SQLException()));
+        CurrencyDaoException e = new CurrencyDaoException(new SQLException());
+        when(currencyDaoMock.insert(any(), any(), any())).thenThrow(e);
 
         CurrencyService currencyServiceWithMock = new CurrencyService(currencyDaoMock);
 
-        CurrencyDaoException exception = assertThrows(
+        CurrencyDaoException exceptionThrown = assertThrows(
                 CurrencyDaoException.class,
                 () -> currencyServiceWithMock.create("", "", "")
         );
 
-        assertEquals("Some DB Error", exception.getMessage());
+        assertEquals(e.getMessage(), exceptionThrown.getMessage());
     }
 
     @Test

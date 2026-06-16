@@ -10,7 +10,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.timur.roadmap.currencyexchange.dto.ErrorResponse;
-import org.timur.roadmap.currencyexchange.exception.CurrencyDaoException;
 import org.timur.roadmap.currencyexchange.exception.CurrencyNotFoundException;
 import org.timur.roadmap.currencyexchange.model.Currency;
 import org.timur.roadmap.currencyexchange.service.CurrencyService;
@@ -74,19 +73,6 @@ public class CurrencyControllerTest {
         verify(currencyServiceMock).findByCode("X");
         verify(responseMock).setStatus(HttpServletResponse.SC_NOT_FOUND);
         verify(mapperMock).writeValue(writerMock, new ErrorResponse("Валюта не найдена"));
-    }
-
-    @Test
-    void getCurrencyShouldReturn500WhenErrorOnServer() throws IOException {
-        when(requestMock.getPathInfo()).thenReturn("/USD");
-        CurrencyDaoException e = new CurrencyDaoException("База данных не доступна");
-        when(currencyServiceMock.findByCode("USD")).thenThrow(e);
-
-        currencyController.doGet(requestMock, responseMock);
-
-        verify(currencyServiceMock).findByCode("USD");
-        verify(responseMock).setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-        verify(mapperMock).writeValue(writerMock, new ErrorResponse(e.getMessage()));
     }
 
     @Test

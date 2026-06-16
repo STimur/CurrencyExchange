@@ -49,7 +49,8 @@ public class ExchangeRateServiceTest {
     @Test
     public void findAllThrowExceptionWhenDatabaseIsUnavailable() {
         ExchangeRateDao exchangeRateDaoMock = mock(ExchangeRateDao.class);
-        when(exchangeRateDaoMock.findAll()).thenThrow(new ExchangeRateDaoException("База данных недоступна", new SQLException()));
+        ExchangeRateDaoException e = new ExchangeRateDaoException(new SQLException());
+        when(exchangeRateDaoMock.findAll()).thenThrow(e);
 
         ExchangeRateService exchangeRateServiceWithMock = new ExchangeRateService(exchangeRateDaoMock, null);
 
@@ -57,7 +58,7 @@ public class ExchangeRateServiceTest {
                 ExchangeRateDaoException.class,
                 exchangeRateServiceWithMock::findAll
         );
-        assertEquals("База данных недоступна", exception.getMessage());
+        assertEquals(e.getMessage(), exception.getMessage());
     }
 
     @Test
@@ -86,8 +87,8 @@ public class ExchangeRateServiceTest {
     @Test
     public void findByCodePairThrowsExceptionWhenDatabaseIsUnavailable() {
         ExchangeRateDao exchangeRateDaoMock = mock(ExchangeRateDao.class);
-        when(exchangeRateDaoMock.findByCodePair(any(), any()))
-                .thenThrow(new ExchangeRateDaoException("База данных не доступна", new SQLException()));
+        ExchangeRateDaoException e = new ExchangeRateDaoException(new SQLException());
+        when(exchangeRateDaoMock.findByCodePair(any(), any())).thenThrow(e);
 
         ExchangeRateService exchangeRateServiceWithMock = new ExchangeRateService(exchangeRateDaoMock, null);
 
@@ -96,7 +97,7 @@ public class ExchangeRateServiceTest {
                 () -> exchangeRateServiceWithMock.findByCodePair("USD", "EUR")
         );
 
-        assertEquals("База данных не доступна", exception.getMessage());
+        assertEquals(e.getMessage(), exception.getMessage());
     }
 
     @Test
@@ -135,9 +136,9 @@ public class ExchangeRateServiceTest {
     public void createThrowExceptionWhenDatabaseIsUnavailable() {
         CurrencyDao currencyDaoMock = mock(CurrencyDao.class);
         ExchangeRateDao exchangeRateDaoMock = mock(ExchangeRateDao.class);
+        ExchangeRateDaoException e = new ExchangeRateDaoException(new SQLException());
         when(currencyDaoMock.findByCode(any())).thenReturn(Optional.of(new Currency(0, "", "", "")));
-        when(exchangeRateDaoMock.insert(any(), any(), any()))
-                .thenThrow(new ExchangeRateDaoException("База данных недоступна", new SQLException()));
+        when(exchangeRateDaoMock.insert(any(), any(), any())).thenThrow(e);
 
         ExchangeRateService exchangeRateServiceWithMock = new ExchangeRateService(exchangeRateDaoMock, currencyDaoMock);
 
@@ -146,7 +147,7 @@ public class ExchangeRateServiceTest {
                 () -> exchangeRateServiceWithMock.create("USD", "RUB", new BigDecimal("75.4"))
         );
 
-        assertEquals("База данных недоступна", exception.getMessage());
+        assertEquals(e.getMessage(), exception.getMessage());
     }
 
     @Test
@@ -174,8 +175,8 @@ public class ExchangeRateServiceTest {
     @Test
     public void updateThrowExceptionWhenDatabaseIsUnavailable() {
         ExchangeRateDao exchangeRateDaoMock = mock(ExchangeRateDao.class);
-        when(exchangeRateDaoMock.update("USD", "NEX", new BigDecimal("0.8")))
-                .thenThrow(new ExchangeRateDaoException("База данных недоступна", new SQLException()));
+        ExchangeRateDaoException e = new ExchangeRateDaoException(new SQLException());
+        when(exchangeRateDaoMock.update("USD", "NEX", new BigDecimal("0.8"))).thenThrow(e);
 
         ExchangeRateService exchangeRateServiceWithMock = new ExchangeRateService(exchangeRateDaoMock, null);
 
@@ -185,7 +186,7 @@ public class ExchangeRateServiceTest {
         );
 
         verify(exchangeRateDaoMock).update("USD", "NEX", new BigDecimal("0.8"));
-        assertEquals("База данных недоступна", exception.getMessage());
+        assertEquals(e.getMessage(), exception.getMessage());
     }
 
     @Test

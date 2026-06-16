@@ -11,7 +11,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.timur.roadmap.currencyexchange.dto.ErrorResponse;
 import org.timur.roadmap.currencyexchange.exception.CurrencyAlreadyExistsException;
-import org.timur.roadmap.currencyexchange.exception.CurrencyDaoException;
 import org.timur.roadmap.currencyexchange.model.Currency;
 import org.timur.roadmap.currencyexchange.service.CurrencyService;
 
@@ -42,18 +41,6 @@ public class CurrenciesControllerTest {
     @BeforeEach
     void setup() throws IOException {
         when(responseMock.getWriter()).thenReturn(writerMock);
-    }
-
-    @Test
-    void getShouldReturn500WhenErrorOnServer() throws IOException {
-        CurrencyDaoException e = new CurrencyDaoException();
-        when(currencyServiceMock.findAll()).thenThrow(e);
-
-        currenciesController.doGet(requestMock, responseMock);
-
-        verify(currencyServiceMock).findAll();
-        verify(responseMock).setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-        verify(mapperMock).writeValue(writerMock, new ErrorResponse(e.getMessage()));
     }
 
     @Test
@@ -93,24 +80,6 @@ public class CurrenciesControllerTest {
         verify(currencyServiceMock).create(code, name, sign);
         verify(responseMock).setStatus(HttpServletResponse.SC_CONFLICT);
         verify(mapperMock).writeValue(writerMock, new ErrorResponse("Валюта с таким кодом уже существует"));
-    }
-
-    @Test
-    void postShouldReturn500WhenDatabaseIsUnavailable() throws IOException {
-        String name = "dollar";
-        String code = "USD";
-        String sign = "$";
-        CurrencyDaoException e = new CurrencyDaoException();
-        when(requestMock.getParameter("name")).thenReturn(name);
-        when(requestMock.getParameter("code")).thenReturn(code);
-        when(requestMock.getParameter("sign")).thenReturn(sign);
-        when(currencyServiceMock.create(code, name, sign)).thenThrow(e);
-
-        currenciesController.doPost(requestMock, responseMock);
-
-        verify(currencyServiceMock).create(code, name, sign);
-        verify(responseMock).setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-        verify(mapperMock).writeValue(writerMock, new ErrorResponse(e.getMessage()));
     }
 
     @Test

@@ -36,16 +36,10 @@ public class ExchangeRatesController extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        try {
-            List<ExchangeRate> exchangeRates = exchangeRateService.findAll();
+        List<ExchangeRate> exchangeRates = exchangeRateService.findAll();
 
-            resp.setStatus(HttpServletResponse.SC_OK);
-            mapper.writeValue(resp.getWriter(), exchangeRates);
-
-        } catch (ExchangeRateDaoException e) {
-            resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            mapper.writeValue(resp.getWriter(), new ErrorResponse(e.getMessage()));
-        }
+        resp.setStatus(HttpServletResponse.SC_OK);
+        mapper.writeValue(resp.getWriter(), exchangeRates);
     }
 
     @Override
@@ -77,10 +71,6 @@ public class ExchangeRatesController extends HttpServlet {
             resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
             mapper.writeValue(resp.getWriter(),
                     new ErrorResponse("Одна (или обе) валюта из валютной пары не существует в БД"));
-        }
-        catch (ExchangeRateDaoException | CurrencyDaoException e) {
-            resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            mapper.writeValue(resp.getWriter(), new ErrorResponse(e.getMessage()));
         }
     }
 }

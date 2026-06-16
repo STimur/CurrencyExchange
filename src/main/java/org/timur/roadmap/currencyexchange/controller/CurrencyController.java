@@ -49,10 +49,6 @@ public class CurrencyController extends HttpServlet {
         } catch (CurrencyNotFoundException e) {
             resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
             mapper.writeValue(resp.getWriter(), new ErrorResponse("Валюта не найдена"));
-
-        } catch (CurrencyDaoException e) {
-            resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            mapper.writeValue(resp.getWriter(), new ErrorResponse(e.getMessage()));
         }
     }
 }

@@ -32,16 +32,10 @@ public class CurrenciesController extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        try {
-            List<Currency> currencies = currencyService.findAll();
+        List<Currency> currencies = currencyService.findAll();
 
-            resp.setStatus(HttpServletResponse.SC_OK);
-            mapper.writeValue(resp.getWriter(), currencies);
-
-        } catch (CurrencyDaoException e) {
-            resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            mapper.writeValue(resp.getWriter(), new ErrorResponse(e.getMessage()));
-        }
+        resp.setStatus(HttpServletResponse.SC_OK);
+        mapper.writeValue(resp.getWriter(), currencies);
     }
 
     @Override
@@ -65,10 +59,6 @@ public class CurrenciesController extends HttpServlet {
         catch (CurrencyAlreadyExistsException e) {
             resp.setStatus(HttpServletResponse.SC_CONFLICT);
             mapper.writeValue(resp.getWriter(), new ErrorResponse("Валюта с таким кодом уже существует"));
-        }
-        catch (CurrencyDaoException e) {
-            resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            mapper.writeValue(resp.getWriter(), new ErrorResponse(e.getMessage()));
         }
     }
 }

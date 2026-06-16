@@ -12,14 +12,12 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.timur.roadmap.currencyexchange.dto.ErrorResponse;
 import org.timur.roadmap.currencyexchange.exception.ExchangeRateAlreadyExistsException;
 import org.timur.roadmap.currencyexchange.exception.ExchangeRateCurrencyNotExistsException;
-import org.timur.roadmap.currencyexchange.exception.ExchangeRateDaoException;
 import org.timur.roadmap.currencyexchange.model.ExchangeRate;
 import org.timur.roadmap.currencyexchange.service.ExchangeRateService;
 
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.math.BigDecimal;
-import java.sql.SQLException;
 import java.util.List;
 
 import static org.mockito.Mockito.verify;
@@ -29,56 +27,44 @@ import static org.mockito.Mockito.when;
 public class ExchangeRatesControllerTest {
 
     @Mock
-    private ExchangeRateService exchangeRateServiceMock;
+    private ExchangeRateService exchangeRateService;
     @Mock
-    private ObjectMapper mapperMock;
+    private ObjectMapper mapper;
     @Mock
-    private HttpServletRequest requestMock;
+    private HttpServletRequest request;
     @Mock
-    private HttpServletResponse responseMock;
+    private HttpServletResponse response;
     @Mock
-    private PrintWriter writerMock;
+    private PrintWriter writer;
 
     @InjectMocks
     private ExchangeRatesController exchangeRatesController;
 
     @BeforeEach
     void setup() throws IOException {
-        when(responseMock.getWriter()).thenReturn(writerMock);
-    }
-
-    @Test
-    void getShouldReturn500WhenErrorOnServer() throws IOException {
-        ExchangeRateDaoException e = new ExchangeRateDaoException("База данных недоступна", new SQLException());
-        when(exchangeRateServiceMock.findAll()).thenThrow(e);
-
-        exchangeRatesController.doGet(requestMock, responseMock);
-
-        verify(exchangeRateServiceMock).findAll();
-        verify(responseMock).setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-        verify(mapperMock).writeValue(writerMock, new ErrorResponse(e.getMessage()));
+        when(response.getWriter()).thenReturn(writer);
     }
 
     @Test
     void getShouldReturnAllExchangeRates() throws IOException {
         List<ExchangeRate> exchangeRates = List.of();
-        when(exchangeRateServiceMock.findAll()).thenReturn(exchangeRates);
+        when(exchangeRateService.findAll()).thenReturn(exchangeRates);
 
-        exchangeRatesController.doGet(requestMock, responseMock);
+        exchangeRatesController.doGet(request, response);
 
-        verify(exchangeRateServiceMock).findAll();
-        verify(responseMock).setStatus(HttpServletResponse.SC_OK);
-        verify(mapperMock).writeValue(writerMock, exchangeRates);
+        verify(exchangeRateService).findAll();
+        verify(response).setStatus(HttpServletResponse.SC_OK);
+        verify(mapper).writeValue(writer, exchangeRates);
     }
 
     @Test
     void postShouldReturn400WhenInvalidInput() throws IOException {
-        when(requestMock.getParameter("baseCurrencyCode")).thenReturn(null);
+        when(request.getParameter("baseCurrencyCode")).thenReturn(null);
 
-        exchangeRatesController.doPost(requestMock, responseMock);
+        exchangeRatesController.doPost(request, response);
 
-        verify(responseMock).setStatus(HttpServletResponse.SC_BAD_REQUEST);
-        verify(mapperMock).writeValue(writerMock, new ErrorResponse("Отсутствует нужное поле формы"));
+        verify(response).setStatus(HttpServletResponse.SC_BAD_REQUEST);
+        verify(mapper).writeValue(writer, new ErrorResponse("Отсутствует нужное поле формы"));
     }
 
     @Test
@@ -86,17 +72,17 @@ public class ExchangeRatesControllerTest {
         String baseCurrency = "USD";
         String targetCurrency = "EUR";
         String rate = "0.8";
-        when(requestMock.getParameter("baseCurrencyCode")).thenReturn(baseCurrency);
-        when(requestMock.getParameter("targetCurrencyCode")).thenReturn(targetCurrency);
-        when(requestMock.getParameter("rate")).thenReturn(rate);
-        when(exchangeRateServiceMock.create(baseCurrency, targetCurrency, new BigDecimal(rate)))
+        when(request.getParameter("baseCurrencyCode")).thenReturn(baseCurrency);
+        when(request.getParameter("targetCurrencyCode")).thenReturn(targetCurrency);
+        when(request.getParameter("rate")).thenReturn(rate);
+        when(exchangeRateService.create(baseCurrency, targetCurrency, new BigDecimal(rate)))
                 .thenThrow(new ExchangeRateAlreadyExistsException(baseCurrency, targetCurrency));
 
-        exchangeRatesController.doPost(requestMock, responseMock);
+        exchangeRatesController.doPost(request, response);
 
-        verify(exchangeRateServiceMock).create(baseCurrency, targetCurrency, new BigDecimal(rate));
-        verify(responseMock).setStatus(HttpServletResponse.SC_CONFLICT);
-        verify(mapperMock).writeValue(writerMock, new ErrorResponse("Валютная пара (USD, EUR) уже существует"));
+        verify(exchangeRateService).create(baseCurrency, targetCurrency, new BigDecimal(rate));
+        verify(response).setStatus(HttpServletResponse.SC_CONFLICT);
+        verify(mapper).writeValue(writer, new ErrorResponse("Валютная пара (USD, EUR) уже существует"));
     }
 
     @Test
@@ -104,38 +90,20 @@ public class ExchangeRatesControllerTest {
         String baseCurrency = "USD";
         String targetCurrency = "NEX";
         String rate = "0.8";
-        when(requestMock.getParameter("baseCurrencyCode")).thenReturn(baseCurrency);
-        when(requestMock.getParameter("targetCurrencyCode")).thenReturn(targetCurrency);
-        when(requestMock.getParameter("rate")).thenReturn(rate);
-        when(exchangeRateServiceMock.create(baseCurrency, targetCurrency, new BigDecimal(rate)))
+        when(request.getParameter("baseCurrencyCode")).thenReturn(baseCurrency);
+        when(request.getParameter("targetCurrencyCode")).thenReturn(targetCurrency);
+        when(request.getParameter("rate")).thenReturn(rate);
+        when(exchangeRateService.create(baseCurrency, targetCurrency, new BigDecimal(rate)))
                 .thenThrow(new ExchangeRateCurrencyNotExistsException(
                         "Одна (или обе) валюта из валютной пары не существует в БД"
                 ));
 
-        exchangeRatesController.doPost(requestMock, responseMock);
+        exchangeRatesController.doPost(request, response);
 
-        verify(exchangeRateServiceMock).create(baseCurrency, targetCurrency, new BigDecimal(rate));
-        verify(responseMock).setStatus(HttpServletResponse.SC_NOT_FOUND);
-        verify(mapperMock).writeValue(writerMock,
+        verify(exchangeRateService).create(baseCurrency, targetCurrency, new BigDecimal(rate));
+        verify(response).setStatus(HttpServletResponse.SC_NOT_FOUND);
+        verify(mapper).writeValue(writer,
                 new ErrorResponse("Одна (или обе) валюта из валютной пары не существует в БД"));
-    }
-
-    @Test
-    void postShouldReturn500WhenDatabaseIsUnavailable() throws IOException {
-        String baseCurrency = "USD";
-        String targetCurrency = "NEX";
-        String rate = "0.8";
-        when(requestMock.getParameter("baseCurrencyCode")).thenReturn(baseCurrency);
-        when(requestMock.getParameter("targetCurrencyCode")).thenReturn(targetCurrency);
-        when(requestMock.getParameter("rate")).thenReturn(rate);
-        when(exchangeRateServiceMock.create(baseCurrency, targetCurrency, new BigDecimal(rate)))
-                .thenThrow(new ExchangeRateDaoException("База данных недоступна", new SQLException()));
-
-        exchangeRatesController.doPost(requestMock, responseMock);
-
-        verify(exchangeRateServiceMock).create(baseCurrency, targetCurrency, new BigDecimal(rate));
-        verify(responseMock).setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-        verify(mapperMock).writeValue(writerMock, new ErrorResponse("База данных недоступна"));
     }
 
     @Test
@@ -144,16 +112,16 @@ public class ExchangeRatesControllerTest {
         String targetCurrency = "NEX";
         String rate = "0.8";
         ExchangeRate exchangeRate = new ExchangeRate(0, null, null, null);
-        when(requestMock.getParameter("baseCurrencyCode")).thenReturn(baseCurrency);
-        when(requestMock.getParameter("targetCurrencyCode")).thenReturn(targetCurrency);
-        when(requestMock.getParameter("rate")).thenReturn(rate);
-        when(exchangeRateServiceMock.create(baseCurrency, targetCurrency, new BigDecimal(rate)))
+        when(request.getParameter("baseCurrencyCode")).thenReturn(baseCurrency);
+        when(request.getParameter("targetCurrencyCode")).thenReturn(targetCurrency);
+        when(request.getParameter("rate")).thenReturn(rate);
+        when(exchangeRateService.create(baseCurrency, targetCurrency, new BigDecimal(rate)))
                 .thenReturn(exchangeRate);
 
-        exchangeRatesController.doPost(requestMock, responseMock);
+        exchangeRatesController.doPost(request, response);
 
-        verify(exchangeRateServiceMock).create(baseCurrency, targetCurrency, new BigDecimal(rate));
-        verify(responseMock).setStatus(HttpServletResponse.SC_CREATED);
-        verify(mapperMock).writeValue(writerMock, exchangeRate);
+        verify(exchangeRateService).create(baseCurrency, targetCurrency, new BigDecimal(rate));
+        verify(response).setStatus(HttpServletResponse.SC_CREATED);
+        verify(mapper).writeValue(writer, exchangeRate);
     }
 }

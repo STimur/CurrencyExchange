@@ -56,10 +56,6 @@ public class ExchangeRateController extends HttpServlet {
             resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
             mapper.writeValue(resp.getWriter(), new ErrorResponse("Обменный курс для пары не найден"));
         }
-        catch (ExchangeRateDaoException e) {
-            resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            mapper.writeValue(resp.getWriter(), new ErrorResponse(e.getMessage()));
-        }
     }
 
     @Override
@@ -95,10 +91,6 @@ public class ExchangeRateController extends HttpServlet {
         }
         catch (ExchangeRateNotFoundException e) {
             resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
-            mapper.writeValue(resp.getWriter(), new ErrorResponse(e.getMessage()));
-        }
-        catch (ExchangeRateDaoException e) {
-            resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             mapper.writeValue(resp.getWriter(), new ErrorResponse(e.getMessage()));
         }
     }

@@ -81,19 +81,6 @@ public class ExchangeRateControllerTest {
     }
 
     @Test
-    void getExchangeRateShouldReturn500WhenErrorOnServer() throws IOException {
-        when(requestMock.getPathInfo()).thenReturn("/USDEUR");
-        ExchangeRateDaoException e = new ExchangeRateDaoException("База данных не доступна", new SQLException());
-        when(exchangeRateServiceMock.findByCodePair("USD", "EUR")).thenThrow(e);
-
-        exchangeRateController.doGet(requestMock, responseMock);
-
-        verify(exchangeRateServiceMock).findByCodePair("USD", "EUR");
-        verify(responseMock).setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-        verify(mapperMock).writeValue(writerMock, new ErrorResponse(e.getMessage()));
-    }
-
-    @Test
     void shouldReturnExchangeRate() throws IOException {
         when(requestMock.getPathInfo()).thenReturn("/USDEUR");
         ExchangeRate exchangeRate = new ExchangeRate(0, null, null, null);
@@ -141,22 +128,6 @@ public class ExchangeRateControllerTest {
 
         verify(exchangeRateServiceMock).update("USD", "NEX", new BigDecimal(rate));
         verify(responseMock).setStatus(HttpServletResponse.SC_NOT_FOUND);
-        verify(mapperMock).writeValue(writerMock, new ErrorResponse(e.getMessage()));
-    }
-
-    @Test
-    void patchShouldReturn500WhenErrorOnServer() throws IOException {
-        String rate = "0.8";
-        BufferedReader br = new BufferedReader(new StringReader("rate=" + rate));
-        when(requestMock.getPathInfo()).thenReturn("/USDEUR");
-        when(requestMock.getReader()).thenReturn(br);
-        ExchangeRateDaoException e = new ExchangeRateDaoException("База данных не доступна", new SQLException());
-        when(exchangeRateServiceMock.update("USD", "EUR", new BigDecimal(rate))).thenThrow(e);
-
-        exchangeRateController.doPatch(requestMock, responseMock);
-
-        verify(exchangeRateServiceMock).update("USD", "EUR", new BigDecimal(rate));
-        verify(responseMock).setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         verify(mapperMock).writeValue(writerMock, new ErrorResponse(e.getMessage()));
     }
 

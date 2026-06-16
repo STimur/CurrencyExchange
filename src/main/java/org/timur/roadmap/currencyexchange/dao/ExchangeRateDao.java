@@ -94,7 +94,7 @@ public class ExchangeRateDao {
             }
 
         } catch (SQLException e) {
-            throw new ExchangeRateDaoException("База данных недоступна", e);
+            throw new ExchangeRateDaoException(e);
         }
 
         return result;
@@ -116,7 +116,7 @@ public class ExchangeRateDao {
                 return Optional.empty();
             }
         } catch (SQLException e) {
-            throw new ExchangeRateDaoException("База данных недоступна", e);
+            throw new ExchangeRateDaoException(e);
         }
     }
 
@@ -188,7 +188,7 @@ public class ExchangeRateDao {
             }
 
         } catch (SQLException e) {
-            throw new ExchangeRateDaoException("База данных недоступна", e);
+            throw new ExchangeRateDaoException(e);
         }
     }
 
