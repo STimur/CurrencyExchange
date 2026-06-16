@@ -8,6 +8,7 @@ import org.timur.roadmap.currencyexchange.dao.ExchangeRateDao;
 import org.timur.roadmap.currencyexchange.exception.ExchangeRateAlreadyExistsException;
 import org.timur.roadmap.currencyexchange.exception.ExchangeRateCurrencyNotExistsException;
 import org.timur.roadmap.currencyexchange.exception.ExchangeRateDaoException;
+import org.timur.roadmap.currencyexchange.exception.ExchangeRateNotExistsException;
 import org.timur.roadmap.currencyexchange.exception.ExchangeRateNotFoundException;
 import org.timur.roadmap.currencyexchange.model.Conversion;
 import org.timur.roadmap.currencyexchange.model.Currency;
@@ -81,7 +82,7 @@ public class ExchangeRateServiceTest {
                 () -> exchangeRateService.findByCodePair("USD", "NEX")
         );
 
-        assertEquals("Обменный курс для пары (USD, NEX) не найден", exception.getMessage());
+        assertEquals("Обменный курс для пары не найден", exception.getMessage());
     }
 
     @Test
@@ -119,7 +120,7 @@ public class ExchangeRateServiceTest {
                 () -> exchangeRateService.create("USD", "EUR", new BigDecimal("0.8"))
         );
 
-        assertEquals("Валютная пара с таким кодом уже существует", exception.getMessage());
+        assertEquals("Валютная пара c таким кодом уже существует", exception.getMessage());
     }
 
     @Test
@@ -164,8 +165,8 @@ public class ExchangeRateServiceTest {
 
     @Test
     public void updateThrowExceptionWhenCurrencyPairNotExists() {
-        ExchangeRateNotFoundException exception = assertThrows(
-                ExchangeRateNotFoundException.class,
+        ExchangeRateNotExistsException exception = assertThrows(
+                ExchangeRateNotExistsException.class,
                 () -> exchangeRateService.update("USD", "NEX", new BigDecimal("0.8"))
         );
 

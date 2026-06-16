@@ -10,8 +10,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.timur.roadmap.currencyexchange.dto.ErrorResponse;
-import org.timur.roadmap.currencyexchange.exception.ExchangeRateDaoException;
-import org.timur.roadmap.currencyexchange.exception.ExchangeRateNotFoundException;
 import org.timur.roadmap.currencyexchange.model.ExchangeRate;
 import org.timur.roadmap.currencyexchange.service.ExchangeRateService;
 
@@ -20,7 +18,6 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringReader;
 import java.math.BigDecimal;
-import java.sql.SQLException;
 
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -48,7 +45,7 @@ public class ExchangeRateControllerTest {
     }
 
     @Test
-    void shouldReturn400WhenCurrencyPairIsNull() throws IOException {
+    void getShouldReturn400WhenCurrencyPairIsNull() throws IOException {
         when(requestMock.getPathInfo()).thenReturn(null);
 
         exchangeRateController.doGet(requestMock, responseMock);
@@ -58,7 +55,7 @@ public class ExchangeRateControllerTest {
     }
 
     @Test
-    void shouldReturn400WhenCurrencyPairIsEmpty() throws IOException {
+    void getShouldReturn400WhenCurrencyPairIsEmpty() throws IOException {
         when(requestMock.getPathInfo()).thenReturn("/");
 
         exchangeRateController.doGet(requestMock, responseMock);
@@ -68,20 +65,7 @@ public class ExchangeRateControllerTest {
     }
 
     @Test
-    void shouldReturn404WhenExchangeRateNotFound() throws IOException {
-        when(requestMock.getPathInfo()).thenReturn("/USDNEX");
-        ExchangeRateNotFoundException e = new ExchangeRateNotFoundException("Обменный курс для пары не найден");
-        when(exchangeRateServiceMock.findByCodePair("USD", "NEX")).thenThrow(e);
-
-        exchangeRateController.doGet(requestMock, responseMock);
-
-        verify(exchangeRateServiceMock).findByCodePair("USD", "NEX");
-        verify(responseMock).setStatus(HttpServletResponse.SC_NOT_FOUND);
-        verify(mapperMock).writeValue(writerMock, new ErrorResponse("Обменный курс для пары не найден"));
-    }
-
-    @Test
-    void shouldReturnExchangeRate() throws IOException {
+    void getShouldReturnExchangeRate() throws IOException {
         when(requestMock.getPathInfo()).thenReturn("/USDEUR");
         ExchangeRate exchangeRate = new ExchangeRate(0, null, null, null);
         when(exchangeRateServiceMock.findByCodePair("USD", "EUR")).thenReturn(exchangeRate);
@@ -116,23 +100,7 @@ public class ExchangeRateControllerTest {
     }
 
     @Test
-    void patchShouldReturn404WhenExchangeRateNotFound() throws IOException {
-        String rate = "0.8";
-        BufferedReader br = new BufferedReader(new StringReader("rate=" + rate));
-        when(requestMock.getPathInfo()).thenReturn("/USDNEX");
-        when(requestMock.getReader()).thenReturn(br);
-        ExchangeRateNotFoundException e = new ExchangeRateNotFoundException("Валютная пара отсутствует в базе данных");
-        when(exchangeRateServiceMock.update("USD", "NEX", new BigDecimal(rate))).thenThrow(e);
-
-        exchangeRateController.doPatch(requestMock, responseMock);
-
-        verify(exchangeRateServiceMock).update("USD", "NEX", new BigDecimal(rate));
-        verify(responseMock).setStatus(HttpServletResponse.SC_NOT_FOUND);
-        verify(mapperMock).writeValue(writerMock, new ErrorResponse(e.getMessage()));
-    }
-
-    @Test
-    void shouldUpdateExchangeRate() throws IOException {
+    void patchShouldUpdateExchangeRate() throws IOException {
         String rate = "0.8";
         BufferedReader br = new BufferedReader(new StringReader("rate=" + rate));
         when(requestMock.getPathInfo()).thenReturn("/USDEUR");

@@ -66,23 +66,6 @@ public class CurrenciesControllerTest {
     }
 
     @Test
-    void postShouldReturn409WhenCurrencyAlreadyExists() throws IOException {
-        String name = "dollar";
-        String code = "USD";
-        String sign = "$";
-        when(requestMock.getParameter("name")).thenReturn(name);
-        when(requestMock.getParameter("code")).thenReturn(code);
-        when(requestMock.getParameter("sign")).thenReturn(sign);
-        when(currencyServiceMock.create(code, name, sign)).thenThrow(new CurrencyAlreadyExistsException(code));
-
-        currenciesController.doPost(requestMock, responseMock);
-
-        verify(currencyServiceMock).create(code, name, sign);
-        verify(responseMock).setStatus(HttpServletResponse.SC_CONFLICT);
-        verify(mapperMock).writeValue(writerMock, new ErrorResponse("Валюта с таким кодом уже существует"));
-    }
-
-    @Test
     void postShouldCreateNewCurrency() throws IOException {
         String name = "dollar";
         String code = "USD";

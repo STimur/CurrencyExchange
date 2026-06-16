@@ -68,45 +68,6 @@ public class ExchangeRatesControllerTest {
     }
 
     @Test
-    void postShouldReturn409WhenExchangeRateAlreadyExists() throws IOException {
-        String baseCurrency = "USD";
-        String targetCurrency = "EUR";
-        String rate = "0.8";
-        when(request.getParameter("baseCurrencyCode")).thenReturn(baseCurrency);
-        when(request.getParameter("targetCurrencyCode")).thenReturn(targetCurrency);
-        when(request.getParameter("rate")).thenReturn(rate);
-        when(exchangeRateService.create(baseCurrency, targetCurrency, new BigDecimal(rate)))
-                .thenThrow(new ExchangeRateAlreadyExistsException(baseCurrency, targetCurrency));
-
-        exchangeRatesController.doPost(request, response);
-
-        verify(exchangeRateService).create(baseCurrency, targetCurrency, new BigDecimal(rate));
-        verify(response).setStatus(HttpServletResponse.SC_CONFLICT);
-        verify(mapper).writeValue(writer, new ErrorResponse("Валютная пара (USD, EUR) уже существует"));
-    }
-
-    @Test
-    void postShouldReturn404WhenAtLeastOneCurrencyFromPairNotExistsInDatabase() throws IOException {
-        String baseCurrency = "USD";
-        String targetCurrency = "NEX";
-        String rate = "0.8";
-        when(request.getParameter("baseCurrencyCode")).thenReturn(baseCurrency);
-        when(request.getParameter("targetCurrencyCode")).thenReturn(targetCurrency);
-        when(request.getParameter("rate")).thenReturn(rate);
-        when(exchangeRateService.create(baseCurrency, targetCurrency, new BigDecimal(rate)))
-                .thenThrow(new ExchangeRateCurrencyNotExistsException(
-                        "Одна (или обе) валюта из валютной пары не существует в БД"
-                ));
-
-        exchangeRatesController.doPost(request, response);
-
-        verify(exchangeRateService).create(baseCurrency, targetCurrency, new BigDecimal(rate));
-        verify(response).setStatus(HttpServletResponse.SC_NOT_FOUND);
-        verify(mapper).writeValue(writer,
-                new ErrorResponse("Одна (или обе) валюта из валютной пары не существует в БД"));
-    }
-
-    @Test
     void postShouldCreateNewExchangeRate() throws IOException {
         String baseCurrency = "USD";
         String targetCurrency = "NEX";

@@ -69,7 +69,7 @@ public class CurrencyServiceTest {
                 () -> currencyService.findByCode("XXX")
         );
 
-        assertEquals("Currency not found: XXX", exception.getMessage());
+        assertEquals("Валюта не найдена", exception.getMessage());
     }
 
     @Test
@@ -102,7 +102,7 @@ public class CurrencyServiceTest {
                 () -> currencyService.create("USD", "", "")
         );
 
-        assertEquals("Currency with USD already exists", exception.getMessage());
+        assertEquals("Валюта с таким кодом уже существует", exception.getMessage());
     }
 
     @Test

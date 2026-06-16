@@ -41,14 +41,10 @@ public class CurrencyController extends HttpServlet {
         }
 
         String code = path.substring(1);
-        try {
-            Currency currency = currencyService.findByCode(code);
-            resp.setStatus(HttpServletResponse.SC_OK);
-            mapper.writeValue(resp.getWriter(), currency);
 
-        } catch (CurrencyNotFoundException e) {
-            resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
-            mapper.writeValue(resp.getWriter(), new ErrorResponse("Валюта не найдена"));
-        }
+        Currency currency = currencyService.findByCode(code);
+
+        resp.setStatus(HttpServletResponse.SC_OK);
+        mapper.writeValue(resp.getWriter(), currency);
     }
 }

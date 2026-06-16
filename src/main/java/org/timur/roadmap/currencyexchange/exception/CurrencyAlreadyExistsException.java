@@ -2,7 +2,9 @@ package org.timur.roadmap.currencyexchange.exception;
 
 public class CurrencyAlreadyExistsException extends RuntimeException {
 
-    public CurrencyAlreadyExistsException(String code) {
-        super(String.format("Currency with %s already exists", code));
+    private static final String MESSAGE = "Валюта с таким кодом уже существует";
+
+    public CurrencyAlreadyExistsException(Throwable cause) {
+        super(MESSAGE, cause);
     }
 }

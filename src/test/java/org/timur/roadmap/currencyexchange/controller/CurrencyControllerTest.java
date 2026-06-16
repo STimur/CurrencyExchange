@@ -63,19 +63,6 @@ public class CurrencyControllerTest {
     }
 
     @Test
-    void shouldReturn404WhenCurrencyNotFound() throws IOException {
-        when(requestMock.getPathInfo()).thenReturn("/X");
-        CurrencyNotFoundException e = new CurrencyNotFoundException("X");
-        when(currencyServiceMock.findByCode("X")).thenThrow(e);
-
-        currencyController.doGet(requestMock, responseMock);
-
-        verify(currencyServiceMock).findByCode("X");
-        verify(responseMock).setStatus(HttpServletResponse.SC_NOT_FOUND);
-        verify(mapperMock).writeValue(writerMock, new ErrorResponse("Валюта не найдена"));
-    }
-
-    @Test
     void shouldReturnCurrency() throws IOException {
         when(requestMock.getPathInfo()).thenReturn("/USD");
         Currency currency = new Currency(1, "", "", "");

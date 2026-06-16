@@ -47,15 +47,11 @@ public class ExchangeRateController extends HttpServlet {
 
         String baseCurrencyCode = path.substring(1, 4);
         String targetCurrencyCode = path.substring(4, 7);
-        try {
-            ExchangeRate exchangeRate = exchangeRateService.findByCodePair(baseCurrencyCode, targetCurrencyCode);
-            resp.setStatus(HttpServletResponse.SC_OK);
-            mapper.writeValue(resp.getWriter(), exchangeRate);
 
-        } catch (ExchangeRateNotFoundException e) {
-            resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
-            mapper.writeValue(resp.getWriter(), new ErrorResponse("Обменный курс для пары не найден"));
-        }
+        ExchangeRate exchangeRate = exchangeRateService.findByCodePair(baseCurrencyCode, targetCurrencyCode);
+
+        resp.setStatus(HttpServletResponse.SC_OK);
+        mapper.writeValue(resp.getWriter(), exchangeRate);
     }
 
     @Override
@@ -82,16 +78,10 @@ public class ExchangeRateController extends HttpServlet {
         String baseCurrencyCode = path.substring(1, 4);
         String targetCurrencyCode = path.substring(4, 7);
 
-        try {
-            ExchangeRate exchangeRate =
-                    exchangeRateService.update(baseCurrencyCode, targetCurrencyCode, new BigDecimal(rate));
+        ExchangeRate exchangeRate =
+                exchangeRateService.update(baseCurrencyCode, targetCurrencyCode, new BigDecimal(rate));
 
-            resp.setStatus(HttpServletResponse.SC_OK);
-            mapper.writeValue(resp.getWriter(), exchangeRate);
-        }
-        catch (ExchangeRateNotFoundException e) {
-            resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
-            mapper.writeValue(resp.getWriter(), new ErrorResponse(e.getMessage()));
-        }
+        resp.setStatus(HttpServletResponse.SC_OK);
+        mapper.writeValue(resp.getWriter(), exchangeRate);
     }
 }

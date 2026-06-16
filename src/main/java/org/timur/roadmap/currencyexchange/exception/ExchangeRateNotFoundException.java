@@ -2,11 +2,9 @@ package org.timur.roadmap.currencyexchange.exception;
 
 public class ExchangeRateNotFoundException extends RuntimeException {
 
-    public ExchangeRateNotFoundException(String message) {
-        super(message);
-    }
+    public static final String MESSAGE = "Обменный курс для пары не найден";
 
-    public ExchangeRateNotFoundException(String baseCurrencyCode, String targetCurrencyCode) {
-        super(String.format("Обменный курс для пары (%s, %s) не найден", baseCurrencyCode, targetCurrencyCode));
+    public ExchangeRateNotFoundException() {
+        super(MESSAGE);
     }
 }

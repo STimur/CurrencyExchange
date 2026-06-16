@@ -56,21 +56,10 @@ public class ExchangeRatesController extends HttpServlet {
             return;
         }
 
-        try {
-            ExchangeRate exchangeRate =
-                    exchangeRateService.create(baseCurrencyCode, targetCurrencyCode, new BigDecimal(rate));
+        ExchangeRate exchangeRate =
+                exchangeRateService.create(baseCurrencyCode, targetCurrencyCode, new BigDecimal(rate));
 
-            resp.setStatus(HttpServletResponse.SC_CREATED);
-            mapper.writeValue(resp.getWriter(), exchangeRate);
-        }
-        catch (ExchangeRateAlreadyExistsException e) {
-            resp.setStatus(HttpServletResponse.SC_CONFLICT);
-            mapper.writeValue(resp.getWriter(), new ErrorResponse(e.getMessage()));
-        }
-        catch (ExchangeRateCurrencyNotExistsException e) {
-            resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
-            mapper.writeValue(resp.getWriter(),
-                    new ErrorResponse("Одна (или обе) валюта из валютной пары не существует в БД"));
-        }
+        resp.setStatus(HttpServletResponse.SC_CREATED);
+        mapper.writeValue(resp.getWriter(), exchangeRate);
     }
 }

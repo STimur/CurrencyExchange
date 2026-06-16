@@ -5,6 +5,7 @@ import org.timur.roadmap.currencyexchange.dao.ExchangeRateDao;
 import org.timur.roadmap.currencyexchange.exception.DuplicateExchangeRateDaoException;
 import org.timur.roadmap.currencyexchange.exception.ExchangeRateAlreadyExistsException;
 import org.timur.roadmap.currencyexchange.exception.ExchangeRateCurrencyNotExistsException;
+import org.timur.roadmap.currencyexchange.exception.ExchangeRateNotExistsException;
 import org.timur.roadmap.currencyexchange.exception.ExchangeRateNotFoundException;
 import org.timur.roadmap.currencyexchange.model.Conversion;
 import org.timur.roadmap.currencyexchange.model.Currency;
@@ -31,29 +32,27 @@ public class ExchangeRateService {
 
     public ExchangeRate findByCodePair(String baseCurrencyCode, String targetCurrencyCode) {
         return exchangeRateDao.findByCodePair(baseCurrencyCode, targetCurrencyCode)
-                .orElseThrow(() -> new ExchangeRateNotFoundException(baseCurrencyCode, targetCurrencyCode));
+                .orElseThrow(ExchangeRateNotFoundException::new);
     }
 
     public ExchangeRate create(String baseCurrencyCode, String targetCurrencyCode, BigDecimal rate) {
         try {
             Currency baseCurrency = currencyDao.findByCode(baseCurrencyCode)
-                    .orElseThrow(() -> new ExchangeRateCurrencyNotExistsException(
-                            "Одна (или обе) валюта из валютной пары не существует в БД"));
+                    .orElseThrow(ExchangeRateCurrencyNotExistsException::new);
             Currency targetCurrency = currencyDao.findByCode(targetCurrencyCode)
-                    .orElseThrow(() -> new ExchangeRateCurrencyNotExistsException(
-                            "Одна (или обе) валюта из валютной пары не существует в БД"));
+                    .orElseThrow(ExchangeRateCurrencyNotExistsException::new);
 
             int id = exchangeRateDao.insert(baseCurrencyCode, targetCurrencyCode, rate);
 
             return new ExchangeRate(id, baseCurrency, targetCurrency, rate);
         } catch (DuplicateExchangeRateDaoException e) {
-            throw new ExchangeRateAlreadyExistsException("Валютная пара с таким кодом уже существует", e);
+            throw new ExchangeRateAlreadyExistsException(e);
         }
     }
 
     public ExchangeRate update(String baseCurrencyCode, String targetCurrencyCode, BigDecimal rate) {
         return exchangeRateDao.update(baseCurrencyCode, targetCurrencyCode, rate)
-                .orElseThrow(() -> new ExchangeRateNotFoundException("Валютная пара отсутствует в базе данных"));
+                .orElseThrow(ExchangeRateNotExistsException::new);
     }
 
     public Conversion convert(String baseCurrencyCode, String targetCurrencyCode, BigDecimal amount) {

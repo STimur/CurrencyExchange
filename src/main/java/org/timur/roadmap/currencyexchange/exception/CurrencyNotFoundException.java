@@ -1,7 +1,10 @@
 package org.timur.roadmap.currencyexchange.exception;
 
 public class CurrencyNotFoundException extends RuntimeException {
-    public CurrencyNotFoundException(String code) {
-        super("Currency not found: " + code);
+
+    public static final String MESSAGE = "Валюта не найдена";
+
+    public CurrencyNotFoundException() {
+        super(MESSAGE);
     }
 }

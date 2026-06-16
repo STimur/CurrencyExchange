@@ -21,14 +21,14 @@ public class CurrencyService {
     }
 
     public Currency findByCode(String code) {
-        return currencyDAO.findByCode(code).orElseThrow(() -> new CurrencyNotFoundException(code));
+        return currencyDAO.findByCode(code).orElseThrow(CurrencyNotFoundException::new);
     }
 
     public Currency create(String code, String fullName, String sign) {
         try {
             return currencyDAO.insert(code, fullName, sign);
         } catch (DuplicateCurrencyDaoException e) {
-            throw new CurrencyAlreadyExistsException(code);
+            throw new CurrencyAlreadyExistsException(e);
         }
     }
 }

@@ -6,9 +6,7 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.timur.roadmap.currencyexchange.model.Currency;
-import org.timur.roadmap.currencyexchange.exception.CurrencyAlreadyExistsException;
 import org.timur.roadmap.currencyexchange.dao.CurrencyDao;
-import org.timur.roadmap.currencyexchange.exception.CurrencyDaoException;
 import org.timur.roadmap.currencyexchange.service.CurrencyService;
 import org.timur.roadmap.currencyexchange.dto.ErrorResponse;
 
@@ -50,15 +48,9 @@ public class CurrenciesController extends HttpServlet {
             return;
         }
 
-        try {
-            Currency currency = currencyService.create(code, name, sign);
+        Currency currency = currencyService.create(code, name, sign);
 
-            resp.setStatus(HttpServletResponse.SC_CREATED);
-            mapper.writeValue(resp.getWriter(), currency);
-        }
-        catch (CurrencyAlreadyExistsException e) {
-            resp.setStatus(HttpServletResponse.SC_CONFLICT);
-            mapper.writeValue(resp.getWriter(), new ErrorResponse("Валюта с таким кодом уже существует"));
-        }
+        resp.setStatus(HttpServletResponse.SC_CREATED);
+        mapper.writeValue(resp.getWriter(), currency);
     }
 }
