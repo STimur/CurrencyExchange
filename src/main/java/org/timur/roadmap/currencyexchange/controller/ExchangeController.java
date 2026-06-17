@@ -7,6 +7,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.timur.roadmap.currencyexchange.dao.CurrencyDao;
 import org.timur.roadmap.currencyexchange.dao.ExchangeRateDao;
+import org.timur.roadmap.currencyexchange.dto.ErrorResponse;
+import org.timur.roadmap.currencyexchange.exception.BadRequestException;
 import org.timur.roadmap.currencyexchange.model.Conversion;
 import org.timur.roadmap.currencyexchange.service.ExchangeRateService;
 
@@ -30,12 +32,24 @@ public class ExchangeController extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        String baseCurrencyCode = req.getParameter("from");
-        String targetCurrencyCode = req.getParameter("to");
+        String from = req.getParameter("from");
+        String to = req.getParameter("to");
         String amount = req.getParameter("amount");
 
+        String errorMessage = "Отсутствует нужное поле формы";
+        if (from == null || from.isBlank() || to == null || to.isBlank() || amount == null || amount.isBlank()) {
+            throw new BadRequestException(errorMessage);
+        }
+
+        BigDecimal amountValue;
+        try {
+            amountValue = new BigDecimal(amount);
+        } catch (NumberFormatException e) {
+            throw new BadRequestException(errorMessage);
+        }
+
         Conversion conversion =
-                exchangeRateService.convert(baseCurrencyCode, targetCurrencyCode, new BigDecimal(amount));
+                exchangeRateService.convert(from, to, amountValue);
 
         resp.setStatus(HttpServletResponse.SC_OK);
         mapper.writeValue(resp.getWriter(), conversion);
