@@ -47,7 +47,6 @@ public class RequestProcessingFilterTest {
 
     @Test
     void shouldSetEncodingAndContentType() throws IOException, ServletException {
-
         requestProcessingFilter.doFilter(request, response, filterChain);
 
         verify(request).setCharacterEncoding(StandardCharsets.UTF_8);

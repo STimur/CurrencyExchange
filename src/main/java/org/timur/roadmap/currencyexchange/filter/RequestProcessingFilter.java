@@ -21,7 +21,7 @@ import org.timur.roadmap.currencyexchange.exception.ExchangeRateNotFoundExceptio
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
-@WebFilter("/*")
+@WebFilter({"/currencies", "/currency/*", "/exchangeRates", "/exchangeRate/*", "/exchange"})
 public class RequestProcessingFilter implements Filter {
 
     private final ObjectMapper mapper;
