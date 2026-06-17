@@ -10,6 +10,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.timur.roadmap.currencyexchange.dto.ErrorResponse;
+import org.timur.roadmap.currencyexchange.exception.BadRequestException;
 import org.timur.roadmap.currencyexchange.model.ExchangeRate;
 import org.timur.roadmap.currencyexchange.service.ExchangeRateService;
 
@@ -19,7 +20,11 @@ import java.io.PrintWriter;
 import java.io.StringReader;
 import java.math.BigDecimal;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -41,7 +46,7 @@ public class ExchangeRateControllerTest {
 
     @BeforeEach
     void setup() throws IOException {
-        when(responseMock.getWriter()).thenReturn(writerMock);
+        lenient().when(responseMock.getWriter()).thenReturn(writerMock);
     }
 
     @Test
@@ -78,25 +83,31 @@ public class ExchangeRateControllerTest {
     }
 
     @Test
-    void patchShouldReturn400WhenEmptyOrNullPath() throws IOException {
+    void patchShouldThrowBadRequestExceptionWhenEmptyOrNullPath() throws IOException {
         when(requestMock.getPathInfo()).thenReturn("/");
 
-        exchangeRateController.doPatch(requestMock, responseMock);
+        BadRequestException e = assertThrows(
+                BadRequestException.class,
+                () -> exchangeRateController.doPatch(requestMock, responseMock)
+        );
 
-        verify(responseMock).setStatus(HttpServletResponse.SC_BAD_REQUEST);
-        verify(mapperMock).writeValue(writerMock, new ErrorResponse("Коды валют пары отсутствуют в адресе"));
+        assertEquals("Коды валют пары отсутствуют в адресе", e.getMessage());
+        verifyNoInteractions(exchangeRateServiceMock);
     }
 
     @Test
-    void patchShouldReturn400WhenInvalidInput() throws IOException {
-        BufferedReader br = new BufferedReader(new StringReader("\n"));
+    void patchShouldThrowBadRequestExceptionWhenInvalidInput() throws IOException {
+        BufferedReader br = new BufferedReader(new StringReader(""));
         when(requestMock.getPathInfo()).thenReturn("/USDEUR");
         when(requestMock.getReader()).thenReturn(br);
 
-        exchangeRateController.doPatch(requestMock, responseMock);
+        BadRequestException e = assertThrows(
+                BadRequestException.class,
+                () -> exchangeRateController.doPatch(requestMock, responseMock)
+        );
 
-        verify(responseMock).setStatus(HttpServletResponse.SC_BAD_REQUEST);
-        verify(mapperMock).writeValue(writerMock, new ErrorResponse("Отсутствует нужное поле формы"));
+        assertEquals("Отсутствует нужное поле формы", e.getMessage());
+        verifyNoInteractions(exchangeRateServiceMock);
     }
 
     @Test

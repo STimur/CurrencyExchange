@@ -8,8 +8,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.timur.roadmap.currencyexchange.dao.CurrencyDao;
 import org.timur.roadmap.currencyexchange.dao.ExchangeRateDao;
 import org.timur.roadmap.currencyexchange.dto.ErrorResponse;
-import org.timur.roadmap.currencyexchange.exception.ExchangeRateDaoException;
-import org.timur.roadmap.currencyexchange.exception.ExchangeRateNotFoundException;
+import org.timur.roadmap.currencyexchange.exception.BadRequestException;
 import org.timur.roadmap.currencyexchange.model.ExchangeRate;
 import org.timur.roadmap.currencyexchange.service.ExchangeRateService;
 
@@ -59,22 +58,10 @@ public class ExchangeRateController extends HttpServlet {
         String path = req.getPathInfo();
 
         if (path == null || path.equals("/")) {
-            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            mapper.writeValue(resp.getWriter(), new ErrorResponse("Коды валют пары отсутствуют в адресе"));
-            return;
+            throw new BadRequestException("Коды валют пары отсутствуют в адресе");
         }
 
-        String[] params = req.getReader().readLine().split("=");
-        String rate = null;
-        if (params.length == 2)
-            rate = URLDecoder.decode(params[1], UTF_8);
-
-        if (rate == null || rate.isBlank()) {
-            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            mapper.writeValue(resp.getWriter(), new ErrorResponse("Отсутствует нужное поле формы"));
-            return;
-        }
-
+        String rate = extractRate(req);
         String baseCurrencyCode = path.substring(1, 4);
         String targetCurrencyCode = path.substring(4, 7);
 
@@ -83,5 +70,23 @@ public class ExchangeRateController extends HttpServlet {
 
         resp.setStatus(HttpServletResponse.SC_OK);
         mapper.writeValue(resp.getWriter(), exchangeRate);
+    }
+
+    private String extractRate(HttpServletRequest req) throws IOException {
+        final String exceptionMessage = "Отсутствует нужное поле формы";
+
+        String body = req.getReader().readLine();
+
+        if (body == null || body.isBlank()) {
+            throw new BadRequestException(exceptionMessage);
+        }
+
+        String[] parts = body.split("=", 2);
+
+        if (parts.length != 2 || !"rate".equals(parts[0])) {
+            throw new BadRequestException(exceptionMessage);
+        }
+
+        return URLDecoder.decode(parts[1], UTF_8);
     }
 }

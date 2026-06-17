@@ -9,6 +9,7 @@ import jakarta.servlet.ServletResponse;
 import jakarta.servlet.annotation.WebFilter;
 import jakarta.servlet.http.HttpServletResponse;
 import org.timur.roadmap.currencyexchange.dto.ErrorResponse;
+import org.timur.roadmap.currencyexchange.exception.BadRequestException;
 import org.timur.roadmap.currencyexchange.exception.CurrencyAlreadyExistsException;
 import org.timur.roadmap.currencyexchange.exception.CurrencyDaoException;
 import org.timur.roadmap.currencyexchange.exception.CurrencyNotFoundException;
@@ -47,6 +48,8 @@ public class RequestProcessingFilter implements Filter {
 
         try {
             chain.doFilter(request, httpResp);
+        } catch (BadRequestException e) {
+            writeErrorResponse(httpResp, HttpServletResponse.SC_BAD_REQUEST, e.getMessage());
         } catch (CurrencyNotFoundException | ExchangeRateNotFoundException |
                  ExchangeRateNotExistsException | ExchangeRateCurrencyNotExistsException e) {
             writeErrorResponse(httpResp, HttpServletResponse.SC_NOT_FOUND, e.getMessage());

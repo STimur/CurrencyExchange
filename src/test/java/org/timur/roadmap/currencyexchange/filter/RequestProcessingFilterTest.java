@@ -11,6 +11,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.timur.roadmap.currencyexchange.dto.ErrorResponse;
+import org.timur.roadmap.currencyexchange.exception.BadRequestException;
 import org.timur.roadmap.currencyexchange.exception.CurrencyAlreadyExistsException;
 import org.timur.roadmap.currencyexchange.exception.CurrencyDaoException;
 import org.timur.roadmap.currencyexchange.exception.CurrencyNotFoundException;
@@ -160,6 +161,18 @@ public class RequestProcessingFilterTest {
         requestProcessingFilter.doFilter(request, response, filterChain);
 
         verify(response).setStatus(HttpServletResponse.SC_NOT_FOUND);
+        verify(mapper).writeValue(writer, new ErrorResponse(e.getMessage()));
+    }
+
+    @Test
+    void shouldReturn400WhenBadRequestException() throws IOException, ServletException {
+        BadRequestException e = new BadRequestException("");
+        doThrow(e).when(filterChain).doFilter(request, response);
+        when(response.getWriter()).thenReturn(writer);
+
+        requestProcessingFilter.doFilter(request, response, filterChain);
+
+        verify(response).setStatus(HttpServletResponse.SC_BAD_REQUEST);
         verify(mapper).writeValue(writer, new ErrorResponse(e.getMessage()));
     }
 }
