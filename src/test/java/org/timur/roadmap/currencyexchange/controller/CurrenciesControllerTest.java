@@ -66,6 +66,18 @@ public class CurrenciesControllerTest {
     }
 
     @Test
+    void postShouldReturn400WhenSignIsLongerThan3() throws IOException {
+        when(requestMock.getParameter("code")).thenReturn("TEST");
+        when(requestMock.getParameter("name")).thenReturn("TEST");
+        when(requestMock.getParameter("sign")).thenReturn("TEST");
+
+        currenciesController.doPost(requestMock, responseMock);
+
+        verify(responseMock).setStatus(HttpServletResponse.SC_BAD_REQUEST);
+        verify(mapperMock).writeValue(writerMock, new ErrorResponse("Отсутствует нужное поле формы"));
+    }
+
+    @Test
     void postShouldCreateNewCurrency() throws IOException {
         String name = "dollar";
         String code = "USD";

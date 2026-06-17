@@ -42,7 +42,8 @@ public class CurrenciesController extends HttpServlet {
         String name = req.getParameter("name");
         String sign = req.getParameter("sign");
 
-        if (code == null || code.isBlank() || name == null || name.isBlank() || sign == null || sign.isBlank()) {
+        if (code == null || code.isBlank() || name == null || name.isBlank()
+                || sign == null || sign.isBlank() || sign.length() > 3) {
             resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             mapper.writeValue(resp.getWriter(), new ErrorResponse("Отсутствует нужное поле формы"));
             return;
