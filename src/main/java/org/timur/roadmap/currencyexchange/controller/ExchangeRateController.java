@@ -83,7 +83,7 @@ public class ExchangeRateController extends HttpServlet {
 
         String[] parts = body.split("=", 2);
 
-        if (parts.length != 2 || !"rate".equals(parts[0])) {
+        if (parts.length != 2 || parts[1].isBlank()) {
             throw new BadRequestException(exceptionMessage);
         }
 

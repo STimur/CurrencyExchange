@@ -96,8 +96,23 @@ public class ExchangeRateControllerTest {
     }
 
     @Test
-    void patchShouldThrowBadRequestExceptionWhenInvalidInput() throws IOException {
+    void patchShouldThrowBadRequestExceptionWhenRateIsNotPresent() throws IOException {
         BufferedReader br = new BufferedReader(new StringReader(""));
+        when(requestMock.getPathInfo()).thenReturn("/USDEUR");
+        when(requestMock.getReader()).thenReturn(br);
+
+        BadRequestException e = assertThrows(
+                BadRequestException.class,
+                () -> exchangeRateController.doPatch(requestMock, responseMock)
+        );
+
+        assertEquals("Отсутствует нужное поле формы", e.getMessage());
+        verifyNoInteractions(exchangeRateServiceMock);
+    }
+
+    @Test
+    void patchShouldThrowBadRequestExceptionWhenRateIsBlank() throws IOException {
+        BufferedReader br = new BufferedReader(new StringReader("rate="));
         when(requestMock.getPathInfo()).thenReturn("/USDEUR");
         when(requestMock.getReader()).thenReturn(br);
 
