@@ -204,6 +204,26 @@ public class ExchangeRateServiceTest {
     }
 
     @Test
+    public void shouldThrowExchangeRateCurrencyNotExistsExceptionIfBaseCurrencyNotExists() {
+        ExchangeRateCurrencyNotExistsException exception = assertThrows(
+                ExchangeRateCurrencyNotExistsException.class,
+                () -> exchangeRateService.convert("XXX", "NEX", new BigDecimal("0.8"))
+        );
+
+        assertEquals("Одна (или обе) валюта из валютной пары не существует в БД", exception.getMessage());
+    }
+
+    @Test
+    public void shouldThrowExchangeRateCurrencyNotExistsExceptionIfTargetCurrencyNotExists() {
+        ExchangeRateCurrencyNotExistsException exception = assertThrows(
+                ExchangeRateCurrencyNotExistsException.class,
+                () -> exchangeRateService.convert("EUR", "XXX", new BigDecimal("0.8"))
+        );
+
+        assertEquals("Одна (или обе) валюта из валютной пары не существует в БД", exception.getMessage());
+    }
+
+    @Test
     public void shouldConvertIfDirectRateExists() {
         Conversion conversion = exchangeRateService.convert("USD", "AUD", new BigDecimal("10.5"));
 

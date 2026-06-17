@@ -85,9 +85,14 @@ public class ExchangeRateService {
             );
         }
 
-        ExchangeRate USDtoBaseRate = exchangeRateDao.findByCodePair("USD", baseCurrencyCode).get();
+        ExchangeRate USDtoBaseRate = exchangeRateDao.findByCodePair("USD", baseCurrencyCode)
+                .orElseThrow(ExchangeRateCurrencyNotExistsException::new);
+
         BigDecimal baseToUSDRate = BigDecimal.ONE.divide(USDtoBaseRate.rate(), 6, RoundingMode.HALF_UP);
-        ExchangeRate USDtoTargetRate = exchangeRateDao.findByCodePair("USD", targetCurrencyCode).get();
+
+        ExchangeRate USDtoTargetRate = exchangeRateDao.findByCodePair("USD", targetCurrencyCode)
+                .orElseThrow(ExchangeRateCurrencyNotExistsException::new);
+
         BigDecimal rate = baseToUSDRate.multiply(USDtoTargetRate.rate());
 
         return new Conversion(
