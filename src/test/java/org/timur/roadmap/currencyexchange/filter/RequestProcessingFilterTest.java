@@ -15,6 +15,7 @@ import org.timur.roadmap.currencyexchange.exception.BadRequestException;
 import org.timur.roadmap.currencyexchange.exception.CurrencyAlreadyExistsException;
 import org.timur.roadmap.currencyexchange.exception.CurrencyDaoException;
 import org.timur.roadmap.currencyexchange.exception.CurrencyNotFoundException;
+import org.timur.roadmap.currencyexchange.exception.ExchangeImpossibleException;
 import org.timur.roadmap.currencyexchange.exception.ExchangeRateAlreadyExistsException;
 import org.timur.roadmap.currencyexchange.exception.ExchangeRateCurrencyNotExistsException;
 import org.timur.roadmap.currencyexchange.exception.ExchangeRateDaoException;
@@ -155,6 +156,18 @@ public class RequestProcessingFilterTest {
     @Test
     void shouldReturn404WhenExchangeRateCurrencyNotExistsException() throws IOException, ServletException {
         ExchangeRateCurrencyNotExistsException e = new ExchangeRateCurrencyNotExistsException();
+        doThrow(e).when(filterChain).doFilter(request, response);
+        when(response.getWriter()).thenReturn(writer);
+
+        requestProcessingFilter.doFilter(request, response, filterChain);
+
+        verify(response).setStatus(HttpServletResponse.SC_NOT_FOUND);
+        verify(mapper).writeValue(writer, new ErrorResponse(e.getMessage()));
+    }
+
+    @Test
+    void shouldReturn404WhenExchangeImpossibleException() throws IOException, ServletException {
+        ExchangeImpossibleException e = new ExchangeImpossibleException();
         doThrow(e).when(filterChain).doFilter(request, response);
         when(response.getWriter()).thenReturn(writer);
 

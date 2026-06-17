@@ -3,6 +3,7 @@ package org.timur.roadmap.currencyexchange.service;
 import org.timur.roadmap.currencyexchange.dao.CurrencyDao;
 import org.timur.roadmap.currencyexchange.dao.ExchangeRateDao;
 import org.timur.roadmap.currencyexchange.exception.DuplicateExchangeRateDaoException;
+import org.timur.roadmap.currencyexchange.exception.ExchangeImpossibleException;
 import org.timur.roadmap.currencyexchange.exception.ExchangeRateAlreadyExistsException;
 import org.timur.roadmap.currencyexchange.exception.ExchangeRateCurrencyNotExistsException;
 import org.timur.roadmap.currencyexchange.exception.ExchangeRateNotExistsException;
@@ -86,12 +87,12 @@ public class ExchangeRateService {
         }
 
         ExchangeRate USDtoBaseRate = exchangeRateDao.findByCodePair("USD", baseCurrencyCode)
-                .orElseThrow(ExchangeRateCurrencyNotExistsException::new);
+                .orElseThrow(ExchangeImpossibleException::new);
 
         BigDecimal baseToUSDRate = BigDecimal.ONE.divide(USDtoBaseRate.rate(), 6, RoundingMode.HALF_UP);
 
         ExchangeRate USDtoTargetRate = exchangeRateDao.findByCodePair("USD", targetCurrencyCode)
-                .orElseThrow(ExchangeRateCurrencyNotExistsException::new);
+                .orElseThrow(ExchangeImpossibleException::new);
 
         BigDecimal rate = baseToUSDRate.multiply(USDtoTargetRate.rate());
 

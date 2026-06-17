@@ -5,6 +5,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.timur.roadmap.currencyexchange.dao.CurrencyDao;
 import org.timur.roadmap.currencyexchange.dao.ExchangeRateDao;
+import org.timur.roadmap.currencyexchange.exception.ExchangeImpossibleException;
 import org.timur.roadmap.currencyexchange.exception.ExchangeRateAlreadyExistsException;
 import org.timur.roadmap.currencyexchange.exception.ExchangeRateCurrencyNotExistsException;
 import org.timur.roadmap.currencyexchange.exception.ExchangeRateDaoException;
@@ -204,23 +205,33 @@ public class ExchangeRateServiceTest {
     }
 
     @Test
-    public void shouldThrowExchangeRateCurrencyNotExistsExceptionIfBaseCurrencyNotExists() {
-        ExchangeRateCurrencyNotExistsException exception = assertThrows(
-                ExchangeRateCurrencyNotExistsException.class,
+    public void convertShouldThrowExceptionIfBaseCurrencyNotExists() {
+        ExchangeImpossibleException exception = assertThrows(
+                ExchangeImpossibleException.class,
                 () -> exchangeRateService.convert("XXX", "NEX", new BigDecimal("0.8"))
         );
 
-        assertEquals("Одна (или обе) валюта из валютной пары не существует в БД", exception.getMessage());
+        assertEquals("Не возможно вычислить обменный курс", exception.getMessage());
     }
 
     @Test
-    public void shouldThrowExchangeRateCurrencyNotExistsExceptionIfTargetCurrencyNotExists() {
-        ExchangeRateCurrencyNotExistsException exception = assertThrows(
-                ExchangeRateCurrencyNotExistsException.class,
+    public void convertShouldThrowExceptionIfTargetCurrencyNotExists() {
+        ExchangeImpossibleException exception = assertThrows(
+                ExchangeImpossibleException.class,
                 () -> exchangeRateService.convert("EUR", "XXX", new BigDecimal("0.8"))
         );
 
-        assertEquals("Одна (или обе) валюта из валютной пары не существует в БД", exception.getMessage());
+        assertEquals("Не возможно вычислить обменный курс", exception.getMessage());
+    }
+
+    @Test
+    public void convertShouldThrowExceptionIfConversionNotPossible() {
+        ExchangeImpossibleException exception = assertThrows(
+                ExchangeImpossibleException.class,
+                () -> exchangeRateService.convert("AUD", "RUB", new BigDecimal("0.8"))
+        );
+
+        assertEquals("Не возможно вычислить обменный курс", exception.getMessage());
     }
 
     @Test

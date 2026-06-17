@@ -13,6 +13,7 @@ import org.timur.roadmap.currencyexchange.exception.BadRequestException;
 import org.timur.roadmap.currencyexchange.exception.CurrencyAlreadyExistsException;
 import org.timur.roadmap.currencyexchange.exception.CurrencyDaoException;
 import org.timur.roadmap.currencyexchange.exception.CurrencyNotFoundException;
+import org.timur.roadmap.currencyexchange.exception.ExchangeImpossibleException;
 import org.timur.roadmap.currencyexchange.exception.ExchangeRateAlreadyExistsException;
 import org.timur.roadmap.currencyexchange.exception.ExchangeRateCurrencyNotExistsException;
 import org.timur.roadmap.currencyexchange.exception.ExchangeRateDaoException;
@@ -50,8 +51,9 @@ public class RequestProcessingFilter implements Filter {
             chain.doFilter(request, httpResp);
         } catch (BadRequestException e) {
             writeErrorResponse(httpResp, HttpServletResponse.SC_BAD_REQUEST, e.getMessage());
-        } catch (CurrencyNotFoundException | ExchangeRateNotFoundException |
-                 ExchangeRateNotExistsException | ExchangeRateCurrencyNotExistsException e) {
+        } catch (CurrencyNotFoundException | ExchangeRateNotFoundException
+                 | ExchangeRateNotExistsException | ExchangeRateCurrencyNotExistsException
+                 | ExchangeImpossibleException e) {
             writeErrorResponse(httpResp, HttpServletResponse.SC_NOT_FOUND, e.getMessage());
         } catch (CurrencyAlreadyExistsException | ExchangeRateAlreadyExistsException e) {
             writeErrorResponse(httpResp, HttpServletResponse.SC_CONFLICT, e.getMessage());
