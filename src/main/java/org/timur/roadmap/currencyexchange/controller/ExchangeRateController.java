@@ -76,17 +76,20 @@ public class ExchangeRateController extends HttpServlet {
         final String exceptionMessage = "Отсутствует нужное поле формы";
 
         String body = req.getReader().readLine();
-
         if (body == null || body.isBlank()) {
             throw new BadRequestException(exceptionMessage);
         }
 
         String[] parts = body.split("=", 2);
-
-        if (parts.length != 2 || parts[1].isBlank()) {
+        if (parts.length != 2) {
             throw new BadRequestException(exceptionMessage);
         }
 
-        return URLDecoder.decode(parts[1], UTF_8);
+        String decodedRate = URLDecoder.decode(parts[1], UTF_8);
+        if (decodedRate.isBlank()) {
+            throw new BadRequestException(exceptionMessage);
+        }
+
+        return decodedRate;
     }
 }

@@ -19,6 +19,8 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringReader;
 import java.math.BigDecimal;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -113,6 +115,23 @@ public class ExchangeRateControllerTest {
     @Test
     void patchShouldThrowBadRequestExceptionWhenRateIsBlank() throws IOException {
         BufferedReader br = new BufferedReader(new StringReader("rate="));
+        when(requestMock.getPathInfo()).thenReturn("/USDEUR");
+        when(requestMock.getReader()).thenReturn(br);
+
+        BadRequestException e = assertThrows(
+                BadRequestException.class,
+                () -> exchangeRateController.doPatch(requestMock, responseMock)
+        );
+
+        assertEquals("Отсутствует нужное поле формы", e.getMessage());
+        verifyNoInteractions(exchangeRateServiceMock);
+    }
+
+    @Test
+    void patchShouldThrowBadRequestExceptionWhenRateIsBlankUTF8() throws IOException {
+        BufferedReader br = new BufferedReader(
+                new StringReader("rate=" + URLEncoder.encode(" ", StandardCharsets.UTF_8))
+        );
         when(requestMock.getPathInfo()).thenReturn("/USDEUR");
         when(requestMock.getReader()).thenReturn(br);
 
